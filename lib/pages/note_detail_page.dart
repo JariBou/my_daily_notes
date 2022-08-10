@@ -4,6 +4,8 @@ import 'package:my_daily_notes/database/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
 import 'package:my_daily_notes/pages/edit_note_page.dart';
 
+import '../helpers.dart';
+
 class NoteDetailPage extends StatefulWidget {
   final int noteId;
   final String table;
@@ -65,7 +67,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                     const SizedBox(height: 8),
                     Text(
                       note.description,
-                      style: const TextStyle(color: Colors.black45, fontSize: 18),
+                      style:
+                          const TextStyle(color: Colors.black45, fontSize: 18),
                     )
                   ],
                 ),
@@ -78,7 +81,10 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         if (isLoading) return;
 
         await Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => AddEditNotePage(note: note, table: widget.table,),
+          builder: (context) => AddEditNotePage(
+            note: note,
+            table: widget.table,
+          ),
         ));
 
         refreshNote(widget.table);
@@ -87,9 +93,17 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   Widget deleteButton() => IconButton(
         icon: const Icon(Icons.delete),
         onPressed: () async {
-          await NotesDatabase.instance.delete(widget.noteId, widget.table);
 
-          Navigator.of(context).pop();
+          confirm(context,
+              'Confirm?',
+              'Are you sure you want to delete this note?',
+              () async {await NotesDatabase.instance.delete(widget.noteId, widget.table);
+              Navigator.of(context).pop();
+
+          }, () => {});
+
+          //await NotesDatabase.instance.delete(widget.noteId, widget.table);
+
         },
       );
 }

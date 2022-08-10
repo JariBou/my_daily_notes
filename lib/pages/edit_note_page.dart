@@ -8,11 +8,8 @@ class AddEditNotePage extends StatefulWidget {
   final Note? note;
   final String table;
 
-  const AddEditNotePage({
-    Key? key,
-    this.note,
-    required this.table
-  }) : super(key: key);
+  const AddEditNotePage({Key? key, this.note, required this.table})
+      : super(key: key);
   @override
   _AddEditNotePageState createState() => _AddEditNotePageState();
 }
@@ -23,6 +20,8 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   late String description;
   late String author;
   late String table;
+  late TextEditingController titleController;
+  late TextEditingController descriptionController;
 
   @override
   void initState() {
@@ -32,6 +31,8 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     description = widget.note?.description ?? '';
     //author = widget.note?.author ?? '';
     table = widget.table;
+    titleController = TextEditingController(text: title);
+    descriptionController = TextEditingController(text: description);
   }
 
   void setTable(String table) {
@@ -39,6 +40,74 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   }
 
   @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          actions: [buildButton(table)],
+        ),
+        body: Form(
+          key: _formKey,
+          child: buildTextArea(),
+        ),
+      );
+
+  Widget buildTextArea() {
+    return Padding(
+        padding: const EdgeInsets.all(18),
+        child: ListView(
+              children: [
+                widget.note?.title != null
+                    ? TextField(
+
+                        controller: titleController,
+                        decoration: null,
+                        onChanged: (title) =>
+                            setState(() => this.title = title),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                      )
+                    : TextField(
+                        onChanged: (title) =>
+                            setState(() => this.title = title),
+                        controller: titleController,
+                        decoration: const InputDecoration.collapsed(
+                            hintText: 'Title',
+                            hintStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+
+                const SizedBox(
+                  height: 16,
+                ),
+
+                widget.note?.description != null
+                    ? Expanded(
+                        child: TextField(
+                        minLines: null,
+                        maxLines: null,
+                        decoration: null,
+                        onChanged: (description) =>
+                            setState(() => this.description = description),
+                        controller: descriptionController,
+                        expands: true,
+                      ))
+                    : TextField(
+                          minLines: 30,
+                          maxLines: null,
+                          controller: descriptionController,
+                          onChanged: (description) =>
+                              setState(() => this.description = description),
+                          decoration: const InputDecoration.collapsed(
+                            hintText: 'description',
+                          ),
+                          expands: false,
+                        ),
+
+              ],
+            ));
+  }
+
+  /*@override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           actions: [buildButton(table)],
@@ -53,7 +122,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
                 setState(() => this.description = description),
           ),
         ),
-      );
+      );*/
 
   Widget buildButton(String table) {
     final isFormValid = title.isNotEmpty && description.isNotEmpty;
@@ -121,5 +190,4 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       return widget.note?.time ?? DateTime.now();
     }
   }
-
 }
