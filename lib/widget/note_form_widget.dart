@@ -17,20 +17,19 @@ class NoteFormWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-        child: Padding(
+  Widget build(BuildContext context) =>
+        Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: ListView(
             children: [
               buildTitle(),
-              const SizedBox(height: 8),
-              buildDescription(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 4),
+              Expanded(
+                  child: buildDescription()),
             ],
           ),
-        ),
       );
+
 
   Widget buildTitle() => TextFormField(
         maxLines: 1,
@@ -51,7 +50,7 @@ class NoteFormWidget extends StatelessWidget {
       );
 
   Widget buildDescription() => TextFormField(
-        maxLines: 5,
+        maxLines: 30,
         initialValue: description,
         style: const TextStyle(color: Colors.black54, fontSize: 18),
         decoration: const InputDecoration(

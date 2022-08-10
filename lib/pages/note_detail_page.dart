@@ -47,7 +47,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
             : Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
@@ -55,20 +55,20 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                       note.title,
                       style: const TextStyle(
                         color: Colors.black,
-                        fontSize: 22,
+                        fontSize: 25,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       DateFormat.yMMMd().format(note.time),
-                      style: const TextStyle(color: Colors.black12),
+                      style: const TextStyle(color: Colors.black26),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       note.description,
                       style:
-                          const TextStyle(color: Colors.black45, fontSize: 18),
+                          const TextStyle(color: Colors.black54, fontSize: 18),
                     )
                   ],
                 ),

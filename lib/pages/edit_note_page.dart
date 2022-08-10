@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_daily_notes/database/notes_database.dart';
@@ -22,6 +24,8 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   late String table;
   late TextEditingController titleController;
   late TextEditingController descriptionController;
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _timeController = TextEditingController();
 
   @override
   void initState() {
@@ -52,59 +56,52 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
 
   Widget buildTextArea() {
     return Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
         child: ListView(
               children: [
-                widget.note?.title != null
-                    ? TextField(
-
-                        controller: titleController,
-                        decoration: null,
-                        onChanged: (title) =>
-                            setState(() => this.title = title),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                      )
-                    : TextField(
-                        onChanged: (title) =>
-                            setState(() => this.title = title),
-                        controller: titleController,
-                        decoration: const InputDecoration.collapsed(
-                            hintText: 'Title',
-                            hintStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                      ),
+                buildTitle(),
 
                 const SizedBox(
                   height: 16,
                 ),
 
-                widget.note?.description != null
-                    ? Expanded(
-                        child: TextField(
-                        minLines: null,
-                        maxLines: null,
-                        decoration: null,
-                        onChanged: (description) =>
-                            setState(() => this.description = description),
-                        controller: descriptionController,
-                        expands: true,
-                      ))
-                    : TextField(
-                          minLines: 30,
-                          maxLines: null,
-                          controller: descriptionController,
-                          onChanged: (description) =>
-                              setState(() => this.description = description),
-                          decoration: const InputDecoration.collapsed(
-                            hintText: 'description',
-                          ),
-                          expands: false,
-                        ),
+                buildDescription(),
 
               ],
             ));
+  }
+
+  Widget buildTitle() {
+    return TextField(
+        onChanged: (title) =>
+            setState(() => this.title = title),
+        controller: titleController,
+      textCapitalization: TextCapitalization.sentences,
+
+        decoration: widget.note?.title != null ? null
+            : const InputDecoration.collapsed(
+            hintText: 'Title',
+            hintStyle: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+
+        style: const TextStyle(
+            fontWeight: FontWeight.bold, fontSize: 25),
+    );
+  }
+
+  Widget buildDescription() {
+    bool isNew = widget.note?.description == null;
+    return Expanded(child: TextField(
+      textCapitalization: TextCapitalization.sentences,
+      minLines: isNew ? 30 : null,
+      maxLines: null,
+      decoration: isNew ?const InputDecoration.collapsed(
+        hintText: 'description',
+      ) : null,
+      onChanged: (description) =>
+          setState(() => this.description = description),
+      controller: descriptionController,
+      expands: isNew ? false : true,
+    ));
   }
 
   /*@override
@@ -185,9 +182,45 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         lastDate: DateTime(2100));
 
     if (pickedDate != null) {
+      _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+      await getTime(widget.note?.time);
+      pickedDate = DateTime.parse('${_dateController.text}T${_timeController.text}');
       return pickedDate;
     } else {
-      return widget.note?.time ?? DateTime.now();
+      _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      await setTimeController(const TimeOfDay(hour: 00, minute: 00));
+      pickedDate = DateTime.parse('${_dateController.text}T${_timeController.text}');
+      return pickedDate;
     }
   }
+
+  Future<Null> setTimeController(TimeOfDay time) async {
+    String hour;
+    String minutes;
+    hour = time.hour.toString().padLeft(2, '0');
+    minutes = time.minute.toString().padLeft(2, '0');
+    _timeController.text = '$hour:$minutes';
+  }
+
+  Future<Null> getTime(DateTime? dateTime) async {
+    TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+
+    );
+
+    if (pickedTime != null) {
+        await setTimeController(pickedTime);
+    } else {
+      if (dateTime != null) {
+        await setTimeController(TimeOfDay(hour: dateTime.hour, minute: dateTime.minute));
+      } else {
+        await setTimeController(const TimeOfDay(hour: 0, minute: 0));
+      }
+    }
+
+
+
+  }
+
 }

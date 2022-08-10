@@ -6,6 +6,9 @@ final _lightColors = [
   Colors.amber.shade300,
   Colors.lightGreen.shade300,
   Colors.lightBlue.shade300,
+  Colors.red.shade400,
+  Colors.deepPurple.shade300,
+  Colors.blue.shade600,
   Colors.orange.shade300,
   Colors.pinkAccent.shade100,
   Colors.tealAccent.shade100
@@ -27,13 +30,14 @@ class NoteCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     /// Pick colors from the accent colors based on index
     final color = _lightColors[index % _lightColors.length];
-    final time = DateFormat.yMMMd().format(note.time);
-    final minHeight = getMinHeight(index);
+    final time = DateFormat.yMMMd().add_Hm().format(note.time);
 
     return Card(
-      shape:selected ? const CircleBorder() : RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       color: color,
       child: Container(
+        decoration: selected
+            ? BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(4), border: Border.all(width: 2, color: Colors.black))
+            : BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
         constraints: const BoxConstraints(maxHeight: double.infinity, maxWidth: double.infinity),
         padding: const EdgeInsets.all(4),
         child: Column(
@@ -42,7 +46,7 @@ class NoteCardWidget extends StatelessWidget {
           children: [
             Text(
               time,
-              style: TextStyle(color: Colors.grey.shade700),
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
             ),
             const SizedBox(height: 4),
             Text(
@@ -69,21 +73,6 @@ class NoteCardWidget extends StatelessWidget {
     );
   }
 
-  /// To return different height for different widgets
-  double getMinHeight(int index) {
-    switch (index % 4) {
-      case 0:
-        return 100;
-      case 1:
-        return 150;
-      case 2:
-        return 150;
-      case 3:
-        return 100;
-      default:
-        return 100;
-    }
-  }
 }
 
 class NoteLockedWidget extends StatelessWidget {
