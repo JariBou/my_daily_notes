@@ -9,9 +9,9 @@ class NoteFields {
   static const String title = 'title';
   static const String description = 'description';
   static const String time = 'time';
-  //static const String author = 'author';
+  static const String author = 'author';
 
-  static const List<String> values = [id, title, description, time]; // ,author
+  static const List<String> values = [id, title, description, time, author];// ,author
 }
 
 class Note {
@@ -19,14 +19,14 @@ class Note {
   final String title;
   final String description;
   final DateTime time;
-  //final String author;
+  final String author;
 
   const Note({
     this.id,
     required this.title,
     required this.description,
     required this.time,
-    //required this.author,
+    required this.author,
   });
 
   Map<String, Object?> toJson() => {
@@ -34,7 +34,7 @@ class Note {
     NoteFields.title: title,
     NoteFields.description: description,
     NoteFields.time: time.toIso8601String(),
-    //NoteFields.author: author
+    NoteFields.author: author,
   };
 
   Note copy({
@@ -42,14 +42,14 @@ class Note {
     String? title,
     String? description,
     DateTime? time,
-    //String? author,
+    String? author,
   }) =>
       Note(
         id: id ?? this.id,
         title: title ?? this.title,
         description: description ?? this.description,
         time: time ?? this.time,
-        //author: author ?? this.author
+        author: author ?? this.author,
       );
 
   static Note fromJson(Map<String, Object?> json) => Note(
@@ -57,6 +57,14 @@ class Note {
     title: json[NoteFields.title] as String,
     description: json[NoteFields.description] as String,
     time: DateTime.parse(json[NoteFields.time] as String),
-    //author: json[NoteFields.author] as String,
+    author: json[NoteFields.author] as String,
   );
+
+  Note removeId() => Note(
+    time: time,
+    title: title,
+    description: description,
+    author: author,
+  );
+
 }

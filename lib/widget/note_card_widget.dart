@@ -46,7 +46,11 @@ class NoteCardWidget extends StatelessWidget {
           children: [
             Text(
               time,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            ),
+            Text(
+              note.author,
+              style: const TextStyle(color: Colors.black54),
             ),
             const SizedBox(height: 4),
             Text(
@@ -102,7 +106,11 @@ class NoteLockedWidget extends StatelessWidget {
           children: [
             Text(
               time,
-              style: TextStyle(color: Colors.grey.shade700),
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            ),
+            Text(
+              note.author,
+              style: const TextStyle(color: Colors.black54),
             ),
             const SizedBox(height: 4),
             const Center(

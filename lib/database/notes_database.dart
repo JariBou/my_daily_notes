@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:path/path.dart';
@@ -23,7 +24,16 @@ class NotesDatabase {
     final dbPath = dir.path;
     final path = join(dbPath, filepath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(path,
+        version: 2, onCreate: _createDB, onUpgrade: _updateDB);
+  }
+
+  FutureOr<void> _updateDB(Database db, int oldVersion, int newVersion) async {
+    await db.execute('''DROP TABLE ${NoteTables.draftNotes}''');
+    await db.execute('''DROP TABLE ${NoteTables.receivedNotes}''');
+    await db.execute('''DROP TABLE ${NoteTables.sentNotes}''');
+
+    _createDB(db, newVersion);
   }
 
   Future _createDB(Database db, int version) async {
@@ -37,7 +47,8 @@ CREATE TABLE ${NoteTables.draftNotes} (
   ${NoteFields.id} $idType, 
   ${NoteFields.title} $textType,
   ${NoteFields.description} $textType,
-  ${NoteFields.time} $textType
+  ${NoteFields.time} $textType,
+  ${NoteFields.author} $textType
   )
 ''');
     await db.execute('''
@@ -45,22 +56,23 @@ CREATE TABLE ${NoteTables.receivedNotes} (
   ${NoteFields.id} $idType, 
   ${NoteFields.title} $textType,
   ${NoteFields.description} $textType,
-  ${NoteFields.time} $textType
-  )
+  ${NoteFields.time} $textType,
+    ${NoteFields.author} $textType
+)
 ''');
     await db.execute('''
 CREATE TABLE ${NoteTables.sentNotes} ( 
   ${NoteFields.id} $idType, 
   ${NoteFields.title} $textType,
   ${NoteFields.description} $textType,
-  ${NoteFields.time} $textType
-  )
+  ${NoteFields.time} $textType,
+    ${NoteFields.author} $textType
+)
 ''');
   }
 
   Future<Note> create(Note note, String table) async {
     final db = await instance.database;
-
     final id = await db.insert(table.toString(), note.toJson());
     return note.copy(id: id);
   }

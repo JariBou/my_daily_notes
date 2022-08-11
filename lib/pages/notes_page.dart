@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -10,6 +11,8 @@ import 'package:my_daily_notes/pages/edit_note_page.dart';
 import 'package:my_daily_notes/pages/note_detail_page.dart';
 import 'package:my_daily_notes/widget/note_card_widget.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../helpers.dart';
 
 class NotesPage extends StatefulWidget {
   final String table;
@@ -64,23 +67,83 @@ class _NotesPageState extends State<NotesPage> {
                     )
                   : buildNotes(widget.table),
         ),
-        floatingActionButton: longPressFlag ? FloatingActionButton(
-          backgroundColor: Colors.red,
-          child: const Icon(Icons.send),
-          onPressed: () => sendNotes(),
-        ) : FloatingActionButton(
-          backgroundColor: Colors.black,
-          child: const Icon(Icons.add),
-          onPressed: () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                  builder: (context) => AddEditNotePage(table: widget.table)),
-            );
-
-            refreshNotes(widget.table);
-          },
-        ),
+        floatingActionButton: buildFloatingButton(widget.table),
       );
+
+  Widget? buildFloatingButton(String table) {
+    if (table == NoteTables.draftNotes) {
+      return longPressFlag
+          ? FloatingActionButton(
+              backgroundColor: Colors.red,
+              child: const Icon(Icons.send),
+              onPressed: () => sendNotes(),
+            )
+          : FloatingActionButton(
+              backgroundColor: Colors.black,
+              child: const Icon(Icons.add),
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          AddEditNotePage(table: widget.table)),
+                );
+
+                refreshNotes(widget.table);
+              },
+            );
+    } else if (table == NoteTables.receivedNotes) {
+      return longPressFlag
+          ? FloatingActionButton(
+              backgroundColor: Colors.red,
+              child: const Icon(Icons.delete_forever),
+              onPressed: () => {
+                confirm(context, 'Confirm?',
+                    'Are you sure you want to delete all of the selected notes?',
+                    () async {
+                  for (var i = 1; i < notesList.length + 1; i++) {
+                    await NotesDatabase.instance
+                        .delete(notesList[i - 1].id as int, widget.table);
+                    refreshNotes(widget.table);
+                  }
+                },
+                    () => {})
+              },
+            )
+          : FloatingActionButton(
+              backgroundColor: Colors.black,
+              child: const Icon(Icons.download),
+              onPressed: () async {
+                await importNotes(widget.table);
+                refreshNotes(widget.table);
+              },
+            );
+    }
+    return null;
+  }
+
+  Future importNotes(String table) async {
+    //await FilePicker.platform.clearTemporaryFiles();
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result == null) {
+      return;
+    }
+    //var data = null;
+    File notes = File(result.files.single.path as String);
+    final data = await json.decode(await notes.readAsString());
+
+    print(data.toString());
+
+    for (var i = 1; i < data.length + 1; i++) {
+      print(data[i.toString()]);
+      final note = Note.fromJson(data[i.toString()]).removeId();
+      try {
+        await NotesDatabase.instance.create(note, table);
+      } catch (e) {
+        print('exception $e');
+      } // Note already exists
+    }
+  }
 
   void longPress() {
     setState(() {
@@ -112,38 +175,30 @@ class _NotesPageState extends State<NotesPage> {
             }
 
             longPress();
-
-            /*return GestureDetector(
-  onTap: () async {
-  if (table != NoteTables.receivedNotes || isReadable) {
-  await Navigator.of(context).push(MaterialPageRoute(
-  builder: (context) =>
-  NoteDetailPage(noteId: note.id!, table: table),
-  ));
-
-  refreshNotes(table);
-  }
-  },
-  child: (table != NoteTables.receivedNotes || isReadable) ? NoteCardWidget(note: note, index: index) : NoteLockedWidget(note: note, index: index),
-  );*/
-          }, refreshNotes: (table) => { refreshNotes(table) }, table: table, isReadable: isReadable, note: note,
+          },
+          refreshNotes: (table) => {refreshNotes(table)},
+          table: table,
+          isReadable: isReadable,
+          note: note,
         );
       });
 
   sendNotes() async {
+    await FilePicker.platform.clearTemporaryFiles();
     Directory directory = await getTemporaryDirectory();
     File file = File('${directory.path}/noteBundle.json');
     //file.create();
     Map<String, dynamic> _json = {};
 
-
-    for (var i; i < notesList.length; i++) {
-      _json.addAll({i.toString(): notesList[i].toJson()});
+    for (var i = 1; i < notesList.length + 1; i++) {
+      _json.addAll({i.toString(): notesList[i - 1].toJson()});
     }
 
     String _jsonString = jsonEncode(_json);
+    print(_jsonString);
 
     file.writeAsStringSync(_jsonString);
+    print(await file.readAsString());
 
     final Email email = Email(
       body: 'Email body',
@@ -200,7 +255,6 @@ class _CustomWidgetState extends State<CustomWidget> {
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
       onLongPress: () {
         setState(() {
@@ -209,28 +263,30 @@ class _CustomWidgetState extends State<CustomWidget> {
         widget.callback();
       },
       onTap: () async {
-        print(widget.longPressEnabled);
         if (widget.longPressEnabled) {
           setState(() {
             selected = !selected;
           });
           widget.callback();
-        }
-        else {
-                print("lol");
-            if (table != NoteTables.receivedNotes || widget.isReadable) {
-              await Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    NoteDetailPage(noteId: note.id!, table: table),
-              ));
+        } else {
+          if (table != NoteTables.receivedNotes || widget.isReadable) {
+            await Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) =>
+                  NoteDetailPage(noteId: note.id!, table: table),
+            ));
 
-              widget.refreshNotes(table);
-            }
+            widget.refreshNotes(table);
+          }
           ;
         }
       },
-
-      child: (table != NoteTables.receivedNotes || widget.isReadable) ? NoteCardWidget(note: note, index: index, selected: selected,) : NoteLockedWidget(note: note, index: index),
+      child: (table != NoteTables.receivedNotes || widget.isReadable)
+          ? NoteCardWidget(
+              note: note,
+              index: index,
+              selected: selected,
+            )
+          : NoteLockedWidget(note: note, index: index),
     );
   }
 }

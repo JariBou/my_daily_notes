@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_daily_notes/database/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
+import 'package:my_daily_notes/stored_data.dart';
 import 'package:my_daily_notes/widget/note_form_widget.dart';
 
 class AddEditNotePage extends StatefulWidget {
@@ -33,14 +34,10 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
 
     title = widget.note?.title ?? '';
     description = widget.note?.description ?? '';
-    //author = widget.note?.author ?? '';
+    author = widget.note?.author ?? DataStorage.getData('name');
     table = widget.table;
     titleController = TextEditingController(text: title);
     descriptionController = TextEditingController(text: description);
-  }
-
-  void setTable(String table) {
-    this.table = table;
   }
 
   @override
@@ -168,6 +165,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       title: title,
       description: description,
       time: await getDate(),
+      author: author,
       //author: 'TestAuthor',
     );
 

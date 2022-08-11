@@ -47,7 +47,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
             : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
@@ -61,7 +62,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      DateFormat.yMMMd().format(note.time),
+                      '${DateFormat.yMMMd().add_Hm().format(note.time)}  -  ${note.author}',
                       style: const TextStyle(color: Colors.black26),
                     ),
                     const SizedBox(height: 8),
@@ -93,17 +94,14 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   Widget deleteButton() => IconButton(
         icon: const Icon(Icons.delete),
         onPressed: () async {
-
-          confirm(context,
-              'Confirm?',
-              'Are you sure you want to delete this note?',
-              () async {await NotesDatabase.instance.delete(widget.noteId, widget.table);
-              Navigator.of(context).pop();
-
+          confirm(
+              context, 'Confirm?', 'Are you sure you want to delete this note?',
+              () async {
+            await NotesDatabase.instance.delete(widget.noteId, widget.table);
+            Navigator.of(context).pop();
           }, () => {});
 
           //await NotesDatabase.instance.delete(widget.noteId, widget.table);
-
         },
       );
 }
