@@ -54,7 +54,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
-                    Text(
+                    SelectableText(
                       note.title,
                       style: const TextStyle(
                         color: Colors.black,
@@ -68,8 +68,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                       style: const TextStyle(color: Colors.black26),
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    SelectableText(
                       note.description,
+                      minLines: 30,
                       style:
                           const TextStyle(color: Colors.black54, fontSize: 18),
                     )

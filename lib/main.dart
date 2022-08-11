@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:my_daily_notes/database/notes_database.dart';
 import 'package:my_daily_notes/pages/notes_page.dart';
 import 'package:my_daily_notes/stored_data.dart';
-import 'package:my_daily_notes/widget/multi_select_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/note.dart';
@@ -11,7 +9,6 @@ import 'models/note.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  prefs.setString('name', '');
   final name = prefs.getString('name') ?? '';
 
   DataStorage.storeData('name', name);
@@ -198,26 +195,6 @@ class _NotesTabLayoutState extends State<NotesTabLayout>
                 Icons.menu,
               ),
             ),*/
-            actions: <Widget>[
-              PopupMenuButton<String>(
-                onSelected: handleClick,
-                itemBuilder: (BuildContext context) {
-                  return {'Delete Tables'}.map((String choice) {
-                    return PopupMenuItem<String>(
-                      value: choice,
-                      child: Text(choice),
-                    );
-                  }).toList();
-                },
-              ),
-
-              /*Padding(
-                  padding: const EdgeInsets.only(right: 20.0),
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: const Icon(Icons.more_vert),
-                  )), */
-            ],
           ),
           body: TabBarView(
             physics: const BouncingScrollPhysics(),
@@ -228,18 +205,6 @@ class _NotesTabLayoutState extends State<NotesTabLayout>
     );
   }
 
-  Future<void> handleClick(String value) async {
-    switch (value) {
-      case 'Delete Tables':
-        final choice = await MultiSelectDialog.dialog(context, 'Select Tables to delete', ['Sent', 'Received', 'Drafts']);
-        if (choice != null) {
-          for (var i = 0; i < choice.length; i++) {
-            await NotesDatabase.instance.resetTable(choice[i]);
-          }
-        }
-        break;
-    }
-  }
 }
 
 class NavDrawer extends StatelessWidget {
@@ -259,30 +224,13 @@ class NavDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.input),
-            title: const Text('Welcome'),
-            onTap: () => {},
-          ),
-          ListTile(
-            leading: const Icon(Icons.verified_user),
-            title: const Text('Profile'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: const Icon(Icons.border_color),
-            title: const Text('Feedback'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: const Icon(Icons.exit_to_app),
-            title: const Text('Logout'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
+            leading: const Icon(Icons.compare_arrows),
+            title: const Text('Change Name'),
+            onTap: () async {await Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+            builder: (context) => const ChangeNameLayout()),
+            (Route<dynamic> route) => false);},
+          )
         ],
       ),
     );
