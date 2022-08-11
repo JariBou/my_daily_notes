@@ -87,11 +87,11 @@ class _NotesPageState extends State<NotesPage> {
                       builder: (context) =>
                           AddEditNotePage(table: widget.table)),
                 );
-
                 refreshNotes(widget.table);
               },
             );
-    } else if (table == NoteTables.receivedNotes) {
+    }
+    else if (table == NoteTables.receivedNotes) {
       return longPressFlag
           ? FloatingActionButton(
               backgroundColor: Colors.red,
@@ -119,6 +119,28 @@ class _NotesPageState extends State<NotesPage> {
                 refreshNotes(widget.table);
               },
             );
+    }
+    else if (table == NoteTables.sentNotes) {
+      return longPressFlag
+      ? FloatingActionButton(
+        backgroundColor: Colors.red,
+        child: const Icon(Icons.delete_forever),
+        onPressed: () => {
+          confirm(context, 'Confirm?',
+              'Are you sure you want to delete all of the selected notes?',
+                  () async {
+                for (var i = 1; i < notesList.length + 1; i++) {
+                  await NotesDatabase.instance
+                      .delete(notesList[i - 1].id as int, widget.table);
+                  refreshNotes(widget.table);
+                }
+                notesList = [];
+                longPress();
+              },
+                  () => {})
+        },
+      )
+          : null;
     }
     return null;
   }
@@ -193,8 +215,13 @@ class _NotesPageState extends State<NotesPage> {
     Map<String, dynamic> _json = {};
 
     for (var i = 1; i < notesList.length + 1; i++) {
-      _json.addAll({i.toString(): notesList[i - 1].toJson()});
+      Note note = notesList[i-1];
+      _json.addAll({i.toString(): note.toJson()});
+      NotesDatabase.instance.delete(note.id as int, widget.table);
+      NotesDatabase.instance.create(note.removeId(), NoteTables.sentNotes);
     }
+    notesList = [];
+    longPress();
 
     String _jsonString = jsonEncode(_json);
     print(_jsonString);
@@ -213,6 +240,7 @@ class _NotesPageState extends State<NotesPage> {
     );
 
     await FlutterEmailSender.send(email);
+    refreshNotes(widget.table);
   }
 }
 
@@ -274,7 +302,7 @@ class _CustomWidgetState extends State<CustomWidget> {
           if (table != NoteTables.receivedNotes || widget.isReadable) {
             await Navigator.of(context).push(MaterialPageRoute(
               builder: (context) =>
-                  NoteDetailPage(noteId: note.id!, table: table),
+                  NoteDetailPage(noteId: note.id!, table: table, isModifiable: table == NoteTables.draftNotes,),
             ));
 
             widget.refreshNotes(table);

@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:my_daily_notes/database/notes_database.dart';
 import 'package:my_daily_notes/pages/notes_page.dart';
 import 'package:my_daily_notes/stored_data.dart';
+import 'package:my_daily_notes/widget/multi_select_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/note.dart';
@@ -31,10 +32,10 @@ class MyApp extends StatelessWidget {
       return MaterialApp(
         title: 'My Daily Notes',
         color: Colors.blue,
-        home: TabLayoutExample(),
+        home: NotesTabLayout(),
       );
     } else {
-      return MaterialApp(
+      return const MaterialApp(
         title: 'My Daily Notes',
         color: Colors.blue,
         home: ChangeNameLayout(),
@@ -88,22 +89,25 @@ class _ChangeNameState extends State<ChangeNameLayout> {
                 ),
               ),
               TextButton(
-                  onPressed: () async {
+                onPressed: () async {
                   if (nameController.text != '') {
                     final prefs = await SharedPreferences.getInstance();
                     prefs.setString('name', nameController.text);
                     DataStorage.storeData('name', nameController.text);
                     await Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(
-                            builder: (context) => TabLayoutExample()),
+                            builder: (context) => NotesTabLayout()),
                         (Route<dynamic> route) => false);
                   }
                 },
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.grey.shade700),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                  backgroundColor:
+                      MaterialStateProperty.all(Colors.grey.shade700),
+                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8))),
                 ),
-                child: const Text("Confirm", style: TextStyle(color: Colors.white)),
+                child: const Text("Confirm",
+                    style: TextStyle(color: Colors.white)),
               )
             ],
           )),
@@ -111,50 +115,42 @@ class _ChangeNameState extends State<ChangeNameLayout> {
   }
 }
 
-class TabLayoutExample extends StatefulWidget {
+class NotesTabLayout extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _TabLayoutExampleState();
+    return _NotesTabLayoutState();
   }
 }
 
-class _TabLayoutExampleState extends State<TabLayoutExample>
+class _NotesTabLayoutState extends State<NotesTabLayout>
     with TickerProviderStateMixin {
   late TabController _tabController;
 
   @override
   initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.animateTo(2);
     //Future.delayed(Duration.zero, () => askForName(context));
   }
-
-
 
   static const List<Tab> _tabs = [
     Tab(icon: Icon(Icons.arrow_upward), child: Text('Sent')),
     Tab(icon: Icon(Icons.mail), text: 'Received'),
     Tab(icon: Icon(Icons.border_color), text: 'Drafts'),
-    Tab(icon: Icon(Icons.looks_4), text: 'Tab Four'),
-    Tab(icon: Icon(Icons.looks_5), text: 'Tab Five'),
-    Tab(icon: Icon(Icons.looks_6), text: 'Tab Six'),
   ];
 
   static final List<Widget> _views = [
     const NotesPage(table: NoteTables.sentNotes),
     const NotesPage(table: NoteTables.receivedNotes),
     const NotesPage(table: NoteTables.draftNotes),
-    const Center(child: Text('Content of Tab Four')),
-    const Center(child: Text('Content of Tab Five')),
-    const Center(child: Text('Content of Tab Six')),
   ];
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: DefaultTabController(
-        length: 6,
+        length: 3,
         child: Scaffold(
           drawer: NavDrawer(),
           appBar: AppBar(
@@ -192,8 +188,6 @@ class _TabLayoutExampleState extends State<TabLayoutExample>
                 print('Tab $index is tapped');
               },
               enableFeedback: true,
-              // Uncomment the line below and remove DefaultTabController if you want to use a custom TabController
-              // controller: _tabController,
               tabs: _tabs,
             ),
             title: const Text('My Daily Notes'),
@@ -205,29 +199,50 @@ class _TabLayoutExampleState extends State<TabLayoutExample>
               ),
             ),*/
             actions: <Widget>[
-              Padding(
+              PopupMenuButton<String>(
+                onSelected: handleClick,
+                itemBuilder: (BuildContext context) {
+                  return {'Delete Tables'}.map((String choice) {
+                    return PopupMenuItem<String>(
+                      value: choice,
+                      child: Text(choice),
+                    );
+                  }).toList();
+                },
+              ),
+
+              /*Padding(
                   padding: const EdgeInsets.only(right: 20.0),
                   child: GestureDetector(
                     onTap: () {},
                     child: const Icon(Icons.more_vert),
-                  )),
+                  )), */
             ],
           ),
           body: TabBarView(
             physics: const BouncingScrollPhysics(),
-            // Uncomment the line below and remove DefaultTabController if you want to use a custom TabController
-            // controller: _tabController,
             children: _views,
           ),
         ),
       ),
     );
   }
+
+  Future<void> handleClick(String value) async {
+    switch (value) {
+      case 'Delete Tables':
+        final choice = await MultiSelectDialog.dialog(context, 'Select Tables to delete', ['Sent', 'Received', 'Drafts']);
+        if (choice != null) {
+          for (var i = 0; i < choice.length; i++) {
+            NotesDatabase.instance.de
+          }
+        }
+        break;
+    }
+  }
 }
 
 class NavDrawer extends StatelessWidget {
-
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -272,5 +287,4 @@ class NavDrawer extends StatelessWidget {
       ),
     );
   }
-
 }

@@ -9,11 +9,13 @@ import '../helpers.dart';
 class NoteDetailPage extends StatefulWidget {
   final int noteId;
   final String table;
+  final bool isModifiable;
 
   const NoteDetailPage({
     Key? key,
     required this.noteId,
     required this.table,
+    required this.isModifiable,
   }) : super(key: key);
 
   @override
@@ -42,7 +44,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          actions: [editButton(), deleteButton()],
+          actions: widget.isModifiable ? [editButton(), deleteButton()] : [],
         ),
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
