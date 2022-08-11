@@ -105,6 +105,8 @@ class _NotesPageState extends State<NotesPage> {
                         .delete(notesList[i - 1].id as int, widget.table);
                     refreshNotes(widget.table);
                   }
+                  notesList = [];
+                  longPress();
                 },
                     () => {})
               },
