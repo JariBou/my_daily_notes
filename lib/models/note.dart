@@ -2,6 +2,8 @@ class NoteTables {
   static const String draftNotes = 'draftnotes';
   static const String sentNotes = 'sentnotes';
   static const String receivedNotes = 'receivednotes';
+
+  static const List<String> fields = [draftNotes, sentNotes, receivedNotes];
 }
 
 class NoteFields {

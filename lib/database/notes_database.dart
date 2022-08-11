@@ -11,6 +11,11 @@ class NotesDatabase {
 
   static Database? _database;
 
+  static const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+  static const textType = 'TEXT NOT NULL';
+  static const boolType = 'BOOLEAN NOT NULL';
+  static const integerType = 'INTEGER NOT NULL';
+
   NotesDatabase._init();
 
   Future<Database> get database async {
@@ -29,46 +34,16 @@ class NotesDatabase {
   }
 
   FutureOr<void> _updateDB(Database db, int oldVersion, int newVersion) async {
-    await db.execute('''DROP TABLE ${NoteTables.draftNotes}''');
-    await db.execute('''DROP TABLE ${NoteTables.receivedNotes}''');
-    await db.execute('''DROP TABLE ${NoteTables.sentNotes}''');
-
+    for (var i = 0; i < NoteTables.fields.length; i++) {
+      deleteTable(NoteTables.fields[i], db);
+    }
     _createDB(db, newVersion);
   }
 
   Future _createDB(Database db, int version) async {
-    const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-    const textType = 'TEXT NOT NULL';
-    const boolType = 'BOOLEAN NOT NULL';
-    const integerType = 'INTEGER NOT NULL';
-
-    await db.execute('''
-CREATE TABLE ${NoteTables.draftNotes} ( 
-  ${NoteFields.id} $idType, 
-  ${NoteFields.title} $textType,
-  ${NoteFields.description} $textType,
-  ${NoteFields.time} $textType,
-  ${NoteFields.author} $textType
-  )
-''');
-    await db.execute('''
-CREATE TABLE ${NoteTables.receivedNotes} ( 
-  ${NoteFields.id} $idType, 
-  ${NoteFields.title} $textType,
-  ${NoteFields.description} $textType,
-  ${NoteFields.time} $textType,
-    ${NoteFields.author} $textType
-)
-''');
-    await db.execute('''
-CREATE TABLE ${NoteTables.sentNotes} ( 
-  ${NoteFields.id} $idType, 
-  ${NoteFields.title} $textType,
-  ${NoteFields.description} $textType,
-  ${NoteFields.time} $textType,
-    ${NoteFields.author} $textType
-)
-''');
+    for (var i = 0; i < NoteTables.fields.length; i++) {
+      createTable(NoteTables.fields[i], db);
+    }
   }
 
   Future<Note> create(Note note, String table) async {
@@ -122,6 +97,27 @@ CREATE TABLE ${NoteTables.sentNotes} (
       where: '${NoteFields.id} = ?',
       whereArgs: [id],
     );
+  }
+
+  Future deleteTable(String table, Database? db) async {
+    db = db ?? await instance.database;
+
+    await db.execute('''DROP TABLE $table''');
+    await createTable(table, db);
+  }
+
+  Future createTable(String table, Database? db) async {
+    db = db ?? await instance.database;
+
+    await db.execute('''
+CREATE TABLE $table ( 
+  ${NoteFields.id} $idType, 
+  ${NoteFields.title} $textType,
+  ${NoteFields.description} $textType,
+  ${NoteFields.time} $textType,
+  ${NoteFields.author} $textType
+  )
+''');
   }
 
   Future close() async {
