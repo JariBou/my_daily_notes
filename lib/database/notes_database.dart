@@ -99,11 +99,17 @@ class NotesDatabase {
     );
   }
 
-  Future deleteTable(String table, [Database? db]) async {
+  Future resetTable(String table, [Database? db]) async {
     db = db ?? await instance.database;
 
     await db.execute('''DROP TABLE $table''');
     await createTable(table, db);
+  }
+
+  Future deleteTable(String table, [Database? db]) async {
+    db = db ?? await instance.database;
+
+    await db.execute('''DROP TABLE $table''');
   }
 
   Future createTable(String table, [Database? db]) async {

@@ -234,7 +234,7 @@ class _NotesTabLayoutState extends State<NotesTabLayout>
         final choice = await MultiSelectDialog.dialog(context, 'Select Tables to delete', ['Sent', 'Received', 'Drafts']);
         if (choice != null) {
           for (var i = 0; i < choice.length; i++) {
-            NotesDatabase.instance.de
+            await NotesDatabase.instance.resetTable(choice[i]);
           }
         }
         break;

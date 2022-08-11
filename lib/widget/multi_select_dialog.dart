@@ -51,7 +51,7 @@ class MultiSelectDialog extends StatelessWidget {
             alignment: Alignment.center,
             child: ElevatedButton(
                 style: ButtonStyle(visualDensity: VisualDensity.comfortable),
-                child: Text('Submit'),
+                child: Text('Confirm'),
                 onPressed: () {
                   // Clear the list
                   selectedItems.clear();
@@ -77,4 +77,5 @@ class MultiSelectDialog extends StatelessWidget {
         builder: (_) =>
             MultiSelectDialog(question: Text(title), answers: options));
   }
+
 }
