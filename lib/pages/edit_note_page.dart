@@ -87,7 +87,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
 
   Widget buildDescription() {
     bool isNew = widget.note?.description == null;
-    return Expanded(child: TextField(
+    return TextField(
       textCapitalization: TextCapitalization.sentences,
       minLines: isNew ? 30 : null,
       maxLines: null,
@@ -98,7 +98,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
           setState(() => this.description = description),
       controller: descriptionController,
       expands: isNew ? false : true,
-    ));
+    );
   }
 
   /*@override
