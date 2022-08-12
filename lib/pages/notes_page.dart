@@ -9,8 +9,10 @@ import 'package:my_daily_notes/database/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
 import 'package:my_daily_notes/pages/edit_note_page.dart';
 import 'package:my_daily_notes/pages/note_detail_page.dart';
+import 'package:my_daily_notes/stored_data.dart';
 import 'package:my_daily_notes/widget/note_card_widget.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../helpers.dart';
 
@@ -73,11 +75,15 @@ class _NotesPageState extends State<NotesPage> {
   Widget? buildFloatingButton(String table) {
     if (table == NoteTables.draftNotes) {
       return longPressFlag
-          ? FloatingActionButton(
-              backgroundColor: Colors.red,
-              child: const Icon(Icons.send),
-              onPressed: () => sendNotes(),
-            )
+          ? Builder(
+        builder: (BuildContext context) {
+          return FloatingActionButton(
+            backgroundColor: Colors.red,
+            child: const Icon(Icons.send),
+            onPressed: () => sendNotes(context),
+          );
+        },
+      )
           : FloatingActionButton(
               backgroundColor: Colors.black,
               child: const Icon(Icons.add),
@@ -207,7 +213,7 @@ class _NotesPageState extends State<NotesPage> {
         );
       });
 
-  sendNotes() async {
+  sendNotes(BuildContext context) async {
     await FilePicker.platform.clearTemporaryFiles();
     Directory directory = await getTemporaryDirectory();
     File file = File('${directory.path}/noteBundle.json');
@@ -224,12 +230,10 @@ class _NotesPageState extends State<NotesPage> {
     longPress();
 
     String _jsonString = jsonEncode(_json);
-    print(_jsonString);
 
     file.writeAsStringSync(_jsonString);
-    print(await file.readAsString());
 
-    final Email email = Email(
+    /*final Email email = Email(
       body: 'Email body',
       subject: 'Email subject',
       recipients: [],
@@ -237,10 +241,17 @@ class _NotesPageState extends State<NotesPage> {
       bcc: [],
       attachmentPaths: [file.path],
       isHTML: false,
+    );*/
+
+    //final box = context.findRenderObject() as RenderBox?;
+    refreshNotes(widget.table);
+
+    await Share.shareFiles([file.path],
+        subject: 'New Notes!',
+        text: '${DataStorage.getData('name')} just sent you new notes!',
     );
 
-    await FlutterEmailSender.send(email);
-    refreshNotes(widget.table);
+    //await FlutterEmailSender.send(email);
   }
 }
 
