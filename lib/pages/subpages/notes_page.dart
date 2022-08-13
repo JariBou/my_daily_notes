@@ -3,19 +3,18 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:my_daily_notes/database/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
-import 'package:my_daily_notes/pages/edit_note_page.dart';
-import 'package:my_daily_notes/pages/note_detail_page.dart';
+import 'package:my_daily_notes/pages/subpages/edit_note_page.dart';
 import 'package:my_daily_notes/stored_data.dart';
-import 'package:my_daily_notes/widget/note_card_widget.dart';
+import 'package:my_daily_notes/widget/note/note_card_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../helpers.dart';
+import '../../helpers.dart';
 
+/// Page that displays noteWidgets
 class NotesPage extends StatefulWidget {
   final String table;
 
@@ -45,7 +44,6 @@ class _NotesPageState extends State<NotesPage> {
   @override
   void dispose() {
     //NotesDatabase.instance.close();
-
     super.dispose();
   }
 
@@ -73,6 +71,7 @@ class _NotesPageState extends State<NotesPage> {
       );
 
   Widget? buildFloatingButton(String table) {
+    /// Giga function that handles Floating buttons for each page
     if (table == NoteTables.draftNotes) {
       return longPressFlag
           ? Builder(
@@ -162,20 +161,14 @@ class _NotesPageState extends State<NotesPage> {
     File notes = File(result.files.single.path as String);
     final data = await json.decode(await notes.readAsString());
 
-    print(data.toString());
-
     for (var i = 1; i < data.length + 1; i++) {
-      print(data[i.toString()]);
       final note = Note.fromJson(data[i.toString()]).removeId();
-      try {
-        await NotesDatabase.instance.create(note, table);
-      } catch (e) {
-        print('exception $e');
-      } // Note already exists
+      await NotesDatabase.instance.create(note, table);
     }
   }
 
   void longPress() {
+    /// Checks if user is still selecting notes
     setState(() {
       if (notesList.isEmpty) {
         longPressFlag = false;
@@ -194,7 +187,7 @@ class _NotesPageState extends State<NotesPage> {
         final note = notes[index];
         final isReadable = note.time.isBefore(DateTime.now());
 
-        return CustomWidget(
+        return NoteCardWidget(
           index: index,
           longPressEnabled: longPressFlag,
           callback: () {
@@ -214,120 +207,36 @@ class _NotesPageState extends State<NotesPage> {
       });
 
   sendNotes(BuildContext context) async {
+    /// Function to send Notes
     await FilePicker.platform.clearTemporaryFiles();
     Directory directory = await getTemporaryDirectory();
     File file = File('${directory.path}/noteBundle.json');
     //file.create();
-    Map<String, dynamic> _json = {};
+    Map<String, dynamic> jsonData = {};
 
     for (var i = 1; i < notesList.length + 1; i++) {
       Note note = notesList[i-1];
-      _json.addAll({i.toString(): note.toJson()});
+      jsonData.addAll({i.toString(): note.toJson()});
       NotesDatabase.instance.delete(note.id as int, widget.table);
       NotesDatabase.instance.create(note.removeId(), NoteTables.sentNotes);
     }
-    notesList = [];
-    longPress();
 
-    String _jsonString = jsonEncode(_json);
+    String jsonString = jsonEncode(jsonData);
 
-    file.writeAsStringSync(_jsonString);
+    file.writeAsStringSync(jsonString);
 
-    /*final Email email = Email(
-      body: 'Email body',
-      subject: 'Email subject',
-      recipients: [],
-      cc: [],
-      bcc: [],
-      attachmentPaths: [file.path],
-      isHTML: false,
-    );*/
-
+    // This is for iPad but throws an error when passed to shareFiles
     //final box = context.findRenderObject() as RenderBox?;
-    refreshNotes(widget.table);
 
     await Share.shareFiles([file.path],
         subject: 'New Notes!',
         text: '${DataStorage.getData('name')} just sent you new notes!',
     );
 
-    //await FlutterEmailSender.send(email);
+    notesList = [];
+    longPress();
+    refreshNotes(widget.table);
   }
 }
 
-class CustomWidget extends StatefulWidget {
-  final int index;
-  final bool longPressEnabled;
-  final VoidCallback callback;
-  final String table;
-  final Note note;
-  final bool isReadable;
-  final Function refreshNotes;
 
-  const CustomWidget(
-      {Key? key,
-      required this.index,
-      required this.longPressEnabled,
-      required this.callback,
-      required this.table,
-      required this.note,
-      required this.isReadable,
-      required this.refreshNotes})
-      : super(key: key);
-
-  @override
-  _CustomWidgetState createState() => _CustomWidgetState();
-}
-
-class _CustomWidgetState extends State<CustomWidget> {
-  bool selected = false;
-  late final Note note;
-  late final String table;
-  late final int index;
-
-  @override
-  void initState() {
-    super.initState();
-
-    note = widget.note;
-    table = widget.table;
-    index = widget.index;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onLongPress: () {
-        setState(() {
-          selected = !selected;
-        });
-        widget.callback();
-      },
-      onTap: () async {
-        if (widget.longPressEnabled) {
-          setState(() {
-            selected = !selected;
-          });
-          widget.callback();
-        } else {
-          if (table != NoteTables.receivedNotes || widget.isReadable) {
-            await Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) =>
-                  NoteDetailPage(noteId: note.id!, table: table, isModifiable: table == NoteTables.draftNotes,),
-            ));
-
-            widget.refreshNotes(table);
-          }
-          ;
-        }
-      },
-      child: (table != NoteTables.receivedNotes || widget.isReadable)
-          ? NoteCardWidget(
-              note: note,
-              index: index,
-              selected: selected,
-            )
-          : NoteLockedWidget(note: note, index: index),
-    );
-  }
-}

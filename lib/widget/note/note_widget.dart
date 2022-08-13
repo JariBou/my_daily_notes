@@ -14,8 +14,8 @@ final _lightColors = [
   Colors.tealAccent.shade100
 ];
 
-class NoteCardWidget extends StatelessWidget {
-  const NoteCardWidget({
+class NoteWidget extends StatelessWidget {
+  const NoteWidget({
     Key? key,
     required this.note,
     required this.index,
@@ -79,45 +79,3 @@ class NoteCardWidget extends StatelessWidget {
 
 }
 
-class NoteLockedWidget extends StatelessWidget {
-  const NoteLockedWidget({
-    Key? key,
-    required this.note,
-    required this.index,
-  }) : super(key: key);
-
-  final Note note;
-  final int index;
-
-  @override
-  Widget build(BuildContext context) {
-    /// Pick colors from the accent colors based on index
-    final color = _lightColors[index % _lightColors.length];
-    final time = DateFormat.yMMMd().format(note.time);
-
-    return Card(
-      color: color,
-      child: Container(
-        constraints: const BoxConstraints(maxHeight: double.infinity, maxWidth: double.infinity),
-        padding: const EdgeInsets.all(4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              time,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-            ),
-            Text(
-              note.author,
-              style: const TextStyle(color: Colors.black54),
-            ),
-            const SizedBox(height: 4),
-            const Center(
-                child: Icon(Icons.lock_clock))
-          ],
-        ),
-      ),
-    );
-  }
-}

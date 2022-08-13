@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_daily_notes/database/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
-import 'package:my_daily_notes/pages/edit_note_page.dart';
+import 'package:my_daily_notes/pages/subpages/edit_note_page.dart';
 
-import '../helpers.dart';
+import '../../helpers.dart';
 
 class NoteDetailPage extends StatefulWidget {
   final int noteId;

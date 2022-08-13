@@ -39,6 +39,7 @@ class Note {
     NoteFields.author: author,
   };
 
+  /// Copies a note while changing given values
   Note copy({
     int? id,
     String? title,
@@ -62,6 +63,7 @@ class Note {
     author: json[NoteFields.author] as String,
   );
 
+  /// Returns note with void id
   Note removeId() => Note(
     time: time,
     title: title,

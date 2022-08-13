@@ -1,11 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_daily_notes/database/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
 import 'package:my_daily_notes/stored_data.dart';
-import 'package:my_daily_notes/widget/note_form_widget.dart';
 
 class AddEditNotePage extends StatefulWidget {
   final Note? note;
@@ -43,7 +40,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          actions: [buildButton(table)],
+          actions: [saveButton(table)],
         ),
         body: Form(
           key: _formKey,
@@ -55,33 +52,27 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
         child: ListView(
-              children: [
-                buildTitle(),
-
-                const SizedBox(
-                  height: 16,
-                ),
-
-                buildDescription(),
-
-              ],
-            ));
+          children: [
+            buildTitle(),
+            const SizedBox(
+              height: 16,
+            ),
+            buildDescription(),
+          ],
+        ));
   }
 
   Widget buildTitle() {
     return TextField(
-        onChanged: (title) =>
-            setState(() => this.title = title),
-        controller: titleController,
+      onChanged: (title) => setState(() => this.title = title),
+      controller: titleController,
       textCapitalization: TextCapitalization.sentences,
-
-        decoration: widget.note?.title != null ? null
-            : const InputDecoration.collapsed(
-            hintText: 'Title',
-            hintStyle: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-
-        style: const TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 25),
+      decoration: widget.note?.title != null
+          ? null
+          : const InputDecoration.collapsed(
+              hintText: 'Title',
+              hintStyle: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
     );
   }
 
@@ -91,9 +82,11 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       textCapitalization: TextCapitalization.sentences,
       minLines: isNew ? 30 : null,
       maxLines: null,
-      decoration: isNew ?const InputDecoration.collapsed(
-        hintText: 'description',
-      ) : null,
+      decoration: isNew
+          ? const InputDecoration.collapsed(
+              hintText: 'description',
+            )
+          : null,
       onChanged: (description) =>
           setState(() => this.description = description),
       controller: descriptionController,
@@ -101,26 +94,8 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     );
   }
 
-  /*@override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          actions: [buildButton(table)],
-        ),
-        body: Form(
-          key: _formKey,
-          child: NoteFormWidget(
-            title: title,
-            description: description,
-            onChangedTitle: (title) => setState(() => this.title = title),
-            onChangedDescription: (description) =>
-                setState(() => this.description = description),
-          ),
-        ),
-      );*/
-
-  Widget buildButton(String table) {
+  Widget saveButton(String table) {
     final isFormValid = title.isNotEmpty && description.isNotEmpty;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: ElevatedButton(
@@ -128,13 +103,16 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
           onPrimary: Colors.white,
           primary: isFormValid ? null : Colors.grey.shade700,
         ),
-        onPressed: () => addOrUpdateNote(table),
+        onPressed: () => {
+          if (isFormValid) {addOrUpdateNote(table)}
+        },
         child: const Text('Save'),
       ),
     );
   }
 
   void addOrUpdateNote(String table) async {
+    /// Handles if note is new or not
     final isValid = _formKey.currentState!.validate();
 
     if (isValid) {
@@ -172,6 +150,8 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     await NotesDatabase.instance.create(note, table);
   }
 
+  // ------------- Date Handling ------------
+
   Future<DateTime> getDate() async {
     DateTime? pickedDate = await showDatePicker(
         context: context,
@@ -182,12 +162,14 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     if (pickedDate != null) {
       _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
       await getTime(widget.note?.time);
-      pickedDate = DateTime.parse('${_dateController.text}T${_timeController.text}');
+      pickedDate =
+          DateTime.parse('${_dateController.text}T${_timeController.text}');
       return pickedDate;
     } else {
       _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
       await setTimeController(const TimeOfDay(hour: 00, minute: 00));
-      pickedDate = DateTime.parse('${_dateController.text}T${_timeController.text}');
+      pickedDate =
+          DateTime.parse('${_dateController.text}T${_timeController.text}');
       return pickedDate;
     }
   }
@@ -202,23 +184,19 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
 
   Future<Null> getTime(DateTime? dateTime) async {
     TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-
+      context: context,
+      initialTime: TimeOfDay.now(),
     );
 
     if (pickedTime != null) {
-        await setTimeController(pickedTime);
+      await setTimeController(pickedTime);
     } else {
       if (dateTime != null) {
-        await setTimeController(TimeOfDay(hour: dateTime.hour, minute: dateTime.minute));
+        await setTimeController(
+            TimeOfDay(hour: dateTime.hour, minute: dateTime.minute));
       } else {
         await setTimeController(const TimeOfDay(hour: 0, minute: 0));
       }
     }
-
-
-
   }
-
 }
