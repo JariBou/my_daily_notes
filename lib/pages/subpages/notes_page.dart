@@ -14,7 +14,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../helpers.dart';
 
-/// Page that displays noteWidgets
+/// Page that displays noteWidgets in a Mosaique
 class NotesPage extends StatefulWidget {
   final String table;
 
@@ -61,11 +61,13 @@ class _NotesPageState extends State<NotesPage> {
           child: isLoading
               ? const CircularProgressIndicator()
               : notes.isEmpty
-                  ? const Text(
-                      'No Notes',
-                      style: TextStyle(color: Colors.white, fontSize: 24),
+                  ? Text(
+                      'No Notes in ${NoteTables.tableName[widget.table]}',
+                      style: const TextStyle(color: Colors.black45, fontStyle: FontStyle.italic, fontSize: 24),
                     )
-                  : buildNotes(widget.table),
+                  : RefreshIndicator(
+                      child: buildNotes(widget.table),
+                      onRefresh: () => refreshNotes(widget.table)),
         ),
         floatingActionButton: buildFloatingButton(widget.table),
       );
@@ -75,14 +77,14 @@ class _NotesPageState extends State<NotesPage> {
     if (table == NoteTables.draftNotes) {
       return longPressFlag
           ? Builder(
-        builder: (BuildContext context) {
-          return FloatingActionButton(
-            backgroundColor: Colors.red,
-            child: const Icon(Icons.send),
-            onPressed: () => sendNotes(context),
-          );
-        },
-      )
+              builder: (BuildContext context) {
+                return FloatingActionButton(
+                  backgroundColor: Colors.red,
+                  child: const Icon(Icons.send),
+                  onPressed: () => sendNotes(context),
+                );
+              },
+            )
           : FloatingActionButton(
               backgroundColor: Colors.black,
               child: const Icon(Icons.add),
@@ -95,8 +97,7 @@ class _NotesPageState extends State<NotesPage> {
                 refreshNotes(widget.table);
               },
             );
-    }
-    else if (table == NoteTables.receivedNotes) {
+    } else if (table == NoteTables.receivedNotes) {
       return longPressFlag
           ? FloatingActionButton(
               backgroundColor: Colors.red,
@@ -112,8 +113,7 @@ class _NotesPageState extends State<NotesPage> {
                   }
                   notesList = [];
                   longPress();
-                },
-                    () => {})
+                }, () => {})
               },
             )
           : FloatingActionButton(
@@ -124,40 +124,36 @@ class _NotesPageState extends State<NotesPage> {
                 refreshNotes(widget.table);
               },
             );
-    }
-    else if (table == NoteTables.sentNotes) {
+    } else if (table == NoteTables.sentNotes) {
       return longPressFlag
-      ? FloatingActionButton(
-        backgroundColor: Colors.red,
-        child: const Icon(Icons.delete_forever),
-        onPressed: () => {
-          confirm(context, 'Confirm?',
-              'Are you sure you want to delete all of the selected notes?',
-                  () async {
-                for (var i = 1; i < notesList.length + 1; i++) {
-                  await NotesDatabase.instance
-                      .delete(notesList[i - 1].id as int, widget.table);
-                  refreshNotes(widget.table);
-                }
-                notesList = [];
-                longPress();
+          ? FloatingActionButton(
+              backgroundColor: Colors.red,
+              child: const Icon(Icons.delete_forever),
+              onPressed: () => {
+                confirm(context, 'Confirm?',
+                    'Are you sure you want to delete all of the selected notes?',
+                    () async {
+                  for (var i = 1; i < notesList.length + 1; i++) {
+                    await NotesDatabase.instance
+                        .delete(notesList[i - 1].id as int, widget.table);
+                    refreshNotes(widget.table);
+                  }
+                  notesList = [];
+                  longPress();
+                }, () => {})
               },
-                  () => {})
-        },
-      )
+            )
           : null;
     }
     return null;
   }
 
   Future importNotes(String table) async {
-    //await FilePicker.platform.clearTemporaryFiles();
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result == null) {
       return;
     }
-    //var data = null;
     File notes = File(result.files.single.path as String);
     final data = await json.decode(await notes.readAsString());
 
@@ -178,7 +174,9 @@ class _NotesPageState extends State<NotesPage> {
     });
   }
 
+  /// Returns a Mosaique view of all Notes in 'table'
   Widget buildNotes(String table) => MasonryGridView.count(
+      physics: const AlwaysScrollableScrollPhysics(),
       crossAxisCount: 3,
       mainAxisSpacing: 3,
       crossAxisSpacing: 1,
@@ -215,7 +213,7 @@ class _NotesPageState extends State<NotesPage> {
     Map<String, dynamic> jsonData = {};
 
     for (var i = 1; i < notesList.length + 1; i++) {
-      Note note = notesList[i-1];
+      Note note = notesList[i - 1];
       jsonData.addAll({i.toString(): note.toJson()});
       NotesDatabase.instance.delete(note.id as int, widget.table);
       NotesDatabase.instance.create(note.removeId(), NoteTables.sentNotes);
@@ -228,9 +226,10 @@ class _NotesPageState extends State<NotesPage> {
     // This is for iPad but throws an error when passed to shareFiles
     //final box = context.findRenderObject() as RenderBox?;
 
-    await Share.shareFiles([file.path],
-        subject: 'New Notes!',
-        text: '${DataStorage.getData('name')} just sent you new notes!',
+    await Share.shareFiles(
+      [file.path],
+      subject: 'New Notes!',
+      text: '${DataStorage.getData('name')} just sent you new notes!',
     );
 
     notesList = [];
@@ -238,5 +237,3 @@ class _NotesPageState extends State<NotesPage> {
     refreshNotes(widget.table);
   }
 }
-
-

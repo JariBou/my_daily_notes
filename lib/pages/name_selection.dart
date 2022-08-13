@@ -4,7 +4,7 @@ import 'package:my_daily_notes/pages/tab_layout.dart';
 import 'package:my_daily_notes/stored_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
+/// Page to change Name
 class ChangeNameLayout extends StatefulWidget {
   const ChangeNameLayout({Key? key}) : super(key: key);
 
@@ -37,7 +37,7 @@ class _ChangeNameState extends State<ChangeNameLayout> {
             children: [
               const Text(
                 "Please enter a name that will be displayed as the note's author's' name:",
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 10),
               TextField(

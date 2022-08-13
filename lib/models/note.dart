@@ -4,6 +4,13 @@ class NoteTables {
   static const String receivedNotes = 'receivednotes';
 
   static const List<String> fields = [draftNotes, sentNotes, receivedNotes];
+
+  static const Map<String, String> tableName= {
+    draftNotes: 'Draft Notes',
+    sentNotes: 'Sent Notes',
+    receivedNotes: 'Received Notes'
+  };
+
 }
 
 class NoteFields {

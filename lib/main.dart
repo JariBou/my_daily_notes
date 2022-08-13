@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLogged) {
-      return MaterialApp(
+      return const MaterialApp(
         title: 'My Daily Notes',
         color: Colors.blue,
         home: NotesTabLayout(),

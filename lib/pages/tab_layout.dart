@@ -4,7 +4,10 @@ import 'package:my_daily_notes/pages/subpages/notes_page.dart';
 import 'package:my_daily_notes/widget/navigation_drawer.dart';
 
 
+/// Main layout with tabs for different noteTables
 class NotesTabLayout extends StatefulWidget {
+  const NotesTabLayout({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return _NotesTabLayoutState();
@@ -20,7 +23,6 @@ class _NotesTabLayoutState extends State<NotesTabLayout>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.animateTo(2);
-    //Future.delayed(Duration.zero, () => askForName(context));
   }
 
   static const List<Tab> _tabs = [
@@ -49,19 +51,6 @@ class _NotesTabLayoutState extends State<NotesTabLayout>
               labelStyle: const TextStyle(fontWeight: FontWeight.bold),
               unselectedLabelStyle:
               const TextStyle(fontStyle: FontStyle.italic),
-              overlayColor:
-              MaterialStateColor.resolveWith((Set<MaterialState> states) {
-                if (states.contains(MaterialState.pressed)) {
-                  return Colors.blue;
-                }
-                if (states.contains(MaterialState.focused)) {
-                  return Colors.orange;
-                } else if (states.contains(MaterialState.hovered)) {
-                  return Colors.pinkAccent;
-                }
-
-                return Colors.transparent;
-              }),
               indicatorWeight: 10,
               indicatorColor: Colors.red,
               indicatorSize: TabBarIndicatorSize.tab,
@@ -96,5 +85,4 @@ class _NotesTabLayoutState extends State<NotesTabLayout>
       ),
     );
   }
-
 }

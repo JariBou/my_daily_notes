@@ -4,6 +4,7 @@ import 'package:my_daily_notes/pages/subpages/note_detail_page.dart';
 import 'package:my_daily_notes/widget/note/note_locked_widget.dart';
 import 'package:my_daily_notes/widget/note/note_widget.dart';
 
+/// Widget that appears on screen representing the note
 class NoteCardWidget extends StatefulWidget {
   final int index;
   final bool longPressEnabled;
@@ -67,7 +68,6 @@ class _NoteCardWidgetState extends State<NoteCardWidget> {
 
             widget.refreshNotes(table);
           }
-          ;
         }
       },
       child: (table != NoteTables.receivedNotes || widget.isReadable)
