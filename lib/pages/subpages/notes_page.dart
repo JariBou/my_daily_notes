@@ -103,9 +103,9 @@ class _NotesPageState extends State<NotesPage> {
               backgroundColor: Colors.red,
               child: const Icon(Icons.delete_forever),
               onPressed: () => {
-                confirm(context, 'Confirm?',
-                    'Are you sure you want to delete all of the selected notes?',
-                    () async {
+                AlertsManager.confirm(context, title: 'Confirm?',
+                    content: 'Are you sure you want to delete all of the selected notes?',
+                    onConfirmCallback: () async {
                   for (var i = 1; i < notesList.length + 1; i++) {
                     await NotesDatabase.instance
                         .delete(notesList[i - 1].id as int, widget.table);
@@ -113,7 +113,7 @@ class _NotesPageState extends State<NotesPage> {
                   }
                   notesList = [];
                   longPress();
-                }, () => {})
+                }, onCancelCallback: () => {})
               },
             )
           : FloatingActionButton(
@@ -130,9 +130,9 @@ class _NotesPageState extends State<NotesPage> {
               backgroundColor: Colors.red,
               child: const Icon(Icons.delete_forever),
               onPressed: () => {
-                confirm(context, 'Confirm?',
-                    'Are you sure you want to delete all of the selected notes?',
-                    () async {
+                AlertsManager.confirm(context, title: 'Confirm?',
+                    content: 'Are you sure you want to delete all of the selected notes?',
+                    onConfirmCallback: () async {
                   for (var i = 1; i < notesList.length + 1; i++) {
                     await NotesDatabase.instance
                         .delete(notesList[i - 1].id as int, widget.table);
@@ -140,7 +140,7 @@ class _NotesPageState extends State<NotesPage> {
                   }
                   notesList = [];
                   longPress();
-                }, () => {})
+                }, onCancelCallback: () => {})
               },
             )
           : null;
