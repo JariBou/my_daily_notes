@@ -97,12 +97,12 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   Widget deleteButton() => IconButton(
         icon: const Icon(Icons.delete),
         onPressed: () async {
-          confirm(
-              context, 'Confirm?', 'Are you sure you want to delete this note?',
-              () async {
+          AlertsManager.confirm(
+              context, title: 'Confirm?', content: 'Are you sure you want to delete this note?',
+              onConfirmCallback: () async {
             await NotesDatabase.instance.delete(widget.noteId, widget.table);
             Navigator.of(context).pop();
-          }, () => {});
+          }, onCancelCallback: () => {});
 
           //await NotesDatabase.instance.delete(widget.noteId, widget.table);
         },
