@@ -18,35 +18,69 @@ class Constants {
 
 }
 
-/// Function to confirm if user wants to perform a certain action
-void confirm (
-    BuildContext context,
+class AlertsManager {
+
+  /// Function to alert user of smth
+  static void alert(BuildContext context,
+      {String? title,
+      String? content,
+      String? buttonText}) {
+    showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: Text(title ?? 'Warning'),
+            content: Text(content ?? 'Irregular action detected'),
+            actions: [TextButton(onPressed: () => {Navigator.of(context, rootNavigator: true).pop()}, child: Text(buttonText ?? 'Ok'))],
+          );
+        });
+  }
+
+  /// Function to confirm if user wants to perform a certain action
+  static void confirm (
+      BuildContext context,
+      {
     String? title,
     String? content,
     Function? onConfirmCallback,
     Function? onCancelCallback,
-    ) {
-  showDialog(
-      context: context,
-      builder: (BuildContext ctx) {
-        return AlertDialog(
-          title: Text(title ?? 'Please Confirm'),
-          content: Text(content ?? 'Are you sure to remove the box?'),
-          actions: [
-            // The "Yes" button
-            TextButton(
-                onPressed: () {
-                  onConfirmCallback!();
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                child: const Text('Yes')),
-            TextButton(
-                onPressed: () {
-                  onCancelCallback!();
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                child: const Text('No'))
-          ],
-        );
-      });
+  }) {
+    showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: Text(title ?? 'Please Confirm'),
+            content: Text(content ?? 'Are you sure to do this?'),
+            actions: [
+              // The "Yes" button
+              TextButton(
+                  onPressed: () {
+                    onConfirmCallback!();
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
+                  child: const Text('Yes')),
+              TextButton(
+                  onPressed: () {
+                    onCancelCallback!();
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
+                  child: const Text('No'))
+            ],
+          );
+        });
+  }
+
+  static void selectableOptionsDialog(BuildContext context,
+  {String? title,
+  required List<SimpleDialogOption> options}) {
+    showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return SimpleDialog(
+            title: Text(title ?? 'Select Option'),
+            children: options,
+          );
+        });
+  }
 }
+
