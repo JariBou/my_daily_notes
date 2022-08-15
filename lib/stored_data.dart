@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 /// Class that allows to access appData without having to deal with
 /// SharedPreferences async problems
 class DataStorage {

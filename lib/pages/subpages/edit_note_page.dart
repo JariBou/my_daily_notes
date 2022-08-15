@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:my_daily_notes/database/notes_database.dart';
+import 'package:my_daily_notes/services/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
 import 'package:my_daily_notes/stored_data.dart';
 

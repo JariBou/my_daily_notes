@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:my_daily_notes/database/notes_database.dart';
+import 'package:my_daily_notes/services/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
 import 'package:my_daily_notes/pages/subpages/edit_note_page.dart';
 import 'package:my_daily_notes/stored_data.dart';

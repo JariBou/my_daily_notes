@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:my_daily_notes/models/note.dart';
+import 'package:my_daily_notes/pages/subpages/note_detail_page.dart';
 import 'package:my_daily_notes/pages/subpages/notes_page.dart';
 import 'package:my_daily_notes/widget/navigation_drawer.dart';
+
+import '../services/notifications_service.dart';
 
 
 /// Main layout with tabs for different noteTables
 class NotesTabLayout extends StatefulWidget {
-  const NotesTabLayout({Key? key}) : super(key: key);
+  final NoteNotification? notification;
+  const NotesTabLayout({Key? key, this.notification}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -39,11 +43,18 @@ class _NotesTabLayoutState extends State<NotesTabLayout>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.notification != null) {
+      return NoteDetailPage(
+          noteId: widget.notification!.id,
+          table: widget.notification!.table,
+          isModifiable: widget.notification!.table == NoteTables.draftNotes,
+        );
+    }
     return MaterialApp(
       home: DefaultTabController(
         length: 3,
         child: Scaffold(
-          drawer: NavDrawer(),
+          drawer: const NavDrawer(),
           appBar: AppBar(
             bottom: TabBar(
               labelColor: Colors.white,
