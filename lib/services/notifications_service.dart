@@ -83,6 +83,12 @@ class NotificationService {
   Future selectNotification(String? payload) async {
     // Payload as: '{note_id: note.id, note_table: note.table}'  (json format)
     notificationPayload = payload!;
+    NoteNotification notification = NoteNotification.fromPayload(payload);
+
+    Builder(
+      builder: (context) => NoteDetailPage(noteId: notification.id, table: notification.table, isModifiable: false, isNotification: true,)
+
+    );
   }
 
   Future zonedScheduleNotification({required String payload}) async {

@@ -48,6 +48,7 @@ class _NotesTabLayoutState extends State<NotesTabLayout>
           noteId: widget.notification!.id,
           table: widget.notification!.table,
           isModifiable: widget.notification!.table == NoteTables.draftNotes,
+          isNotification: true,
         );
     }
     return MaterialApp(
