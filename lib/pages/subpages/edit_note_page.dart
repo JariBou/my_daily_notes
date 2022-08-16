@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_daily_notes/services/notes_database.dart';
@@ -23,6 +25,8 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   late TextEditingController titleController;
   late TextEditingController descriptionController;
   final TextEditingController _dateController = TextEditingController();
+  DateTime _datePicked = DateTime.now();
+  TimeOfDay _timePicked = TimeOfDay.now();
   final TextEditingController _timeController = TextEditingController();
 
   @override
@@ -159,17 +163,16 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         firstDate: DateTime.now(),
         lastDate: DateTime(2100));
 
+
     if (pickedDate != null) {
-      _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+      _datePicked = pickedDate;
       await getTime(widget.note?.time);
-      pickedDate =
-          DateTime.parse('${_dateController.text}T${_timeController.text}');
+      pickedDate = DateTime(_datePicked.year, _datePicked.month, _datePicked.day, _timePicked.hour, _timePicked.minute).toUtc();
       return pickedDate;
     } else {
-      _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      await setTimeController(const TimeOfDay(hour: 00, minute: 00));
-      pickedDate =
-          DateTime.parse('${_dateController.text}T${_timeController.text}');
+      _datePicked = DateTime.now();
+      _timePicked = const TimeOfDay(hour: 00, minute: 00);
+      pickedDate = DateTime(_datePicked.year, _datePicked.month, _datePicked.day, _timePicked.hour, _timePicked.minute).toUtc();
       return pickedDate;
     }
   }
@@ -188,14 +191,16 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       initialTime: TimeOfDay.now(),
     );
 
+
+
     if (pickedTime != null) {
-      await setTimeController(pickedTime);
+      _timePicked = pickedTime;
     } else {
       if (dateTime != null) {
-        await setTimeController(
-            TimeOfDay(hour: dateTime.hour, minute: dateTime.minute));
+        _timePicked =
+            TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
       } else {
-        await setTimeController(const TimeOfDay(hour: 0, minute: 0));
+        _timePicked = const TimeOfDay(hour: 0, minute: 0);
       }
     }
   }

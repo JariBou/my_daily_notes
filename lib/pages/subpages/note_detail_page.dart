@@ -71,7 +71,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${DateFormat.yMMMd().add_Hm().format(note.time)}  -  ${note.author}',
+                      '${DateFormat.yMMMd().add_Hm().format(note.time.toLocal())}  -  ${note.author}',
                       style: const TextStyle(color: Colors.black26),
                     ),
                     const SizedBox(height: 8),

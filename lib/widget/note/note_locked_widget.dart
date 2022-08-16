@@ -19,7 +19,7 @@ class NoteLockedWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     /// Pick colors from the accent colors based on index
     final color = Constants.noteColors[index % Constants.noteColors.length];
-    final time = DateFormat.yMMMd().format(note.time);
+    final time = DateFormat.yMMMd().add_Hm().format(note.time.toLocal());
 
     return Card(
       color: color,
