@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:my_daily_notes/helpers.dart';
+import 'package:my_daily_notes/services/helpers.dart';
 import 'package:my_daily_notes/models/note.dart';
 
 /// Widget that represents the UI of a note
@@ -20,7 +20,7 @@ class NoteWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     /// Pick colors from the accent colors based on index
     final color = Constants.noteColors[index % Constants.noteColors.length];
-    final time = DateFormat.yMMMd().add_Hm().format(note.time);
+    final time = DateFormat.yMMMd().add_Hm().format(note.time.toLocal());
 
     return Card(
       color: color,

@@ -4,15 +4,16 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:my_daily_notes/database/notes_database.dart';
+import 'package:my_daily_notes/services/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
 import 'package:my_daily_notes/pages/subpages/edit_note_page.dart';
-import 'package:my_daily_notes/stored_data.dart';
+import 'package:my_daily_notes/services/notifications_service.dart';
+import 'package:my_daily_notes/services/stored_data.dart';
 import 'package:my_daily_notes/widget/note/note_card_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-
-import '../../helpers.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:my_daily_notes/services/helpers.dart';
 
 /// Page that displays noteWidgets in a Mosaique
 class NotesPage extends StatefulWidget {
@@ -63,7 +64,10 @@ class _NotesPageState extends State<NotesPage> {
               : notes.isEmpty
                   ? Text(
                       'No Notes in ${NoteTables.tableName[widget.table]}',
-                      style: const TextStyle(color: Colors.black45, fontStyle: FontStyle.italic, fontSize: 24),
+                      style: const TextStyle(
+                          color: Colors.black45,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 24),
                     )
                   : RefreshIndicator(
                       child: buildNotes(widget.table),
@@ -103,17 +107,20 @@ class _NotesPageState extends State<NotesPage> {
               backgroundColor: Colors.red,
               child: const Icon(Icons.delete_forever),
               onPressed: () => {
-                AlertsManager.confirm(context, title: 'Confirm?',
-                    content: 'Are you sure you want to delete all of the selected notes?',
+                AlertsManager.confirm(context,
+                    title: 'Confirm?',
+                    content:
+                        'Are you sure you want to delete all of the selected notes?',
                     onConfirmCallback: () async {
-                  for (var i = 1; i < notesList.length + 1; i++) {
-                    await NotesDatabase.instance
-                        .delete(notesList[i - 1].id as int, widget.table);
-                    refreshNotes(widget.table);
-                  }
-                  notesList = [];
-                  longPress();
-                }, onCancelCallback: () => {})
+                      for (var i = 1; i < notesList.length + 1; i++) {
+                        await NotesDatabase.instance
+                            .delete(notesList[i - 1].id as int, widget.table);
+                        refreshNotes(widget.table);
+                      }
+                      notesList = [];
+                      longPress();
+                    },
+                    onCancelCallback: () => {})
               },
             )
           : FloatingActionButton(
@@ -130,17 +137,20 @@ class _NotesPageState extends State<NotesPage> {
               backgroundColor: Colors.red,
               child: const Icon(Icons.delete_forever),
               onPressed: () => {
-                AlertsManager.confirm(context, title: 'Confirm?',
-                    content: 'Are you sure you want to delete all of the selected notes?',
+                AlertsManager.confirm(context,
+                    title: 'Confirm?',
+                    content:
+                        'Are you sure you want to delete all of the selected notes?',
                     onConfirmCallback: () async {
-                  for (var i = 1; i < notesList.length + 1; i++) {
-                    await NotesDatabase.instance
-                        .delete(notesList[i - 1].id as int, widget.table);
-                    refreshNotes(widget.table);
-                  }
-                  notesList = [];
-                  longPress();
-                }, onCancelCallback: () => {})
+                      for (var i = 1; i < notesList.length + 1; i++) {
+                        await NotesDatabase.instance
+                            .delete(notesList[i - 1].id as int, widget.table);
+                        refreshNotes(widget.table);
+                      }
+                      notesList = [];
+                      longPress();
+                    },
+                    onCancelCallback: () => {})
               },
             )
           : null;
@@ -158,8 +168,18 @@ class _NotesPageState extends State<NotesPage> {
     final data = await json.decode(await notes.readAsString());
 
     for (var i = 1; i < data.length + 1; i++) {
-      final note = Note.fromJson(data[i.toString()]).removeId();
-      await NotesDatabase.instance.create(note, table);
+      Note note = Note.fromJson(data[i.toString()]).removeId();
+      note = await NotesDatabase.instance.create(note, table);
+      if (DateTime.now().isBefore(note.time)) {
+        DateTime noteTime = note.time.toLocal();
+        NotificationService().zonedScheduleNotification(
+            payload:
+                json.encode({'note_id': note.id, 'note_table': table}),
+            title: 'Note Unlocked',
+            content: 'A note that ${note.author} sent you just unlocked, come check it out!',
+            time: tz.TZDateTime(tz.local, noteTime.year, noteTime.month, noteTime.day, noteTime.hour, noteTime.minute),
+            noteId: note.id ?? 69);
+      }
     }
   }
 

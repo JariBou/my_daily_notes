@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:my_daily_notes/database/notes_database.dart';
+import 'package:my_daily_notes/services/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
-import 'package:my_daily_notes/stored_data.dart';
+import 'package:my_daily_notes/services/stored_data.dart';
 
 class AddEditNotePage extends StatefulWidget {
   final Note? note;
@@ -22,8 +21,8 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   late String table;
   late TextEditingController titleController;
   late TextEditingController descriptionController;
-  final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _timeController = TextEditingController();
+  DateTime _datePicked = DateTime.now();
+  TimeOfDay _timePicked = TimeOfDay.now();
 
   @override
   void initState() {
@@ -159,27 +158,18 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         firstDate: DateTime.now(),
         lastDate: DateTime(2100));
 
+
     if (pickedDate != null) {
-      _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+      _datePicked = pickedDate;
       await getTime(widget.note?.time);
-      pickedDate =
-          DateTime.parse('${_dateController.text}T${_timeController.text}');
+      pickedDate = DateTime(_datePicked.year, _datePicked.month, _datePicked.day, _timePicked.hour, _timePicked.minute).toUtc();
       return pickedDate;
     } else {
-      _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      await setTimeController(const TimeOfDay(hour: 00, minute: 00));
-      pickedDate =
-          DateTime.parse('${_dateController.text}T${_timeController.text}');
+      _datePicked = DateTime.now();
+      _timePicked = const TimeOfDay(hour: 00, minute: 00);
+      pickedDate = DateTime(_datePicked.year, _datePicked.month, _datePicked.day, _timePicked.hour, _timePicked.minute).toUtc();
       return pickedDate;
     }
-  }
-
-  Future<Null> setTimeController(TimeOfDay time) async {
-    String hour;
-    String minutes;
-    hour = time.hour.toString().padLeft(2, '0');
-    minutes = time.minute.toString().padLeft(2, '0');
-    _timeController.text = '$hour:$minutes';
   }
 
   Future<Null> getTime(DateTime? dateTime) async {
@@ -188,14 +178,16 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       initialTime: TimeOfDay.now(),
     );
 
+
+
     if (pickedTime != null) {
-      await setTimeController(pickedTime);
+      _timePicked = pickedTime;
     } else {
       if (dateTime != null) {
-        await setTimeController(
-            TimeOfDay(hour: dateTime.hour, minute: dateTime.minute));
+        _timePicked =
+            TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
       } else {
-        await setTimeController(const TimeOfDay(hour: 0, minute: 0));
+        _timePicked = const TimeOfDay(hour: 0, minute: 0);
       }
     }
   }

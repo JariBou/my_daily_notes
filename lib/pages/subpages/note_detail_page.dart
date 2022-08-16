@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:my_daily_notes/database/notes_database.dart';
+import 'package:my_daily_notes/pages/tab_layout.dart';
+import 'package:my_daily_notes/services/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
 import 'package:my_daily_notes/pages/subpages/edit_note_page.dart';
-
-import '../../helpers.dart';
+import 'package:my_daily_notes/services/helpers.dart';
 
 class NoteDetailPage extends StatefulWidget {
   final int noteId;
   final String table;
   final bool isModifiable;
+  final bool isNotification;
 
   const NoteDetailPage({
     Key? key,
     required this.noteId,
     required this.table,
     required this.isModifiable,
+    this.isNotification = false,
   }) : super(key: key);
 
   @override
@@ -45,6 +47,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           actions: widget.isModifiable ? [editButton(), deleteButton()] : [],
+          leading: widget.isNotification ? homeButton() : null,
         ),
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -64,7 +67,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${DateFormat.yMMMd().add_Hm().format(note.time)}  -  ${note.author}',
+                      '${DateFormat.yMMMd().add_Hm().format(note.time.toLocal())}  -  ${note.author}',
                       style: const TextStyle(color: Colors.black26),
                     ),
                     const SizedBox(height: 8),
@@ -107,4 +110,11 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
           //await NotesDatabase.instance.delete(widget.noteId, widget.table);
         },
       );
+
+  homeButton() => IconButton(
+    icon: const Icon(Icons.home_outlined),
+    onPressed: () async {
+      await Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const NotesTabLayout()), (route) => false);
+      },
+  );
 }
