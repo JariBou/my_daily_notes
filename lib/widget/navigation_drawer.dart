@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_daily_notes/pages/name_selection.dart';
-import 'package:my_daily_notes/stored_data.dart';
+import 'package:my_daily_notes/services/stored_data.dart';
 
 /// Main Drawer
 class NavDrawer extends StatelessWidget {
@@ -24,7 +24,7 @@ class NavDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.compare_arrows),
             title: const Text('Change Name'),
-            onTap: () => ChangeName(context),
+            onTap: () => changeName(context),
           )
         ],
       ),
@@ -32,7 +32,7 @@ class NavDrawer extends StatelessWidget {
   }
 
   /// Sends to page to change name
-  ChangeName(BuildContext context) async {
+  changeName(BuildContext context) async {
     await Navigator.of(context).push(
         MaterialPageRoute(
             builder: (context) => const ChangeNameLayout()));

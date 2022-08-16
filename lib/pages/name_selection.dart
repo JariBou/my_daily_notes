@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_daily_notes/pages/tab_layout.dart';
-import 'package:my_daily_notes/stored_data.dart';
+import 'package:my_daily_notes/services/stored_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Page to change Name

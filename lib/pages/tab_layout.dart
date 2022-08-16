@@ -3,8 +3,7 @@ import 'package:my_daily_notes/models/note.dart';
 import 'package:my_daily_notes/pages/subpages/note_detail_page.dart';
 import 'package:my_daily_notes/pages/subpages/notes_page.dart';
 import 'package:my_daily_notes/widget/navigation_drawer.dart';
-
-import '../services/notifications_service.dart';
+import 'package:my_daily_notes/services/notifications_service.dart';
 
 
 /// Main layout with tabs for different noteTables

@@ -1,9 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:my_daily_notes/pages/subpages/note_detail_page.dart';
-import 'package:my_daily_notes/pages/tab_layout.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -27,6 +24,7 @@ class NoteNotification {
 
 
 class NotificationService {
+  // Singleton Init
   static final NotificationService _notificationService =
       NotificationService._internal();
 
@@ -41,6 +39,7 @@ class NotificationService {
   String notificationPayload = '';
 
   Future<void> init() async {
+    /// Initialisation of all settings
     await _configureLocalTimeZone();
     // Android Settings
     const AndroidInitializationSettings initializationSettingsAndroid =
@@ -79,34 +78,31 @@ class NotificationService {
         );
   }
 
-
+  /// Useless for now
   Future selectNotification(String? payload) async {
     // Payload as: '{note_id: note.id, note_table: note.table}'  (json format)
     notificationPayload = payload!;
-    NoteNotification notification = NoteNotification.fromPayload(payload);
 
-    Builder(
-      builder: (context) => NoteDetailPage(noteId: notification.id, table: notification.table, isModifiable: false, isNotification: true,)
-
-    );
   }
 
-  Future zonedScheduleNotification({required String payload}) async {
+  /// Create a Scheduled notification
+  Future zonedScheduleNotification({required String payload, required String title, required String content, required tz.TZDateTime time, required int noteId}) async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
-        0,
-        'scheduled title',
-        'scheduled body',
-        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 10)),
+        noteId,
+        title,
+        content,
+        time,
         const NotificationDetails(
             android: AndroidNotificationDetails(
-                'your channel id', 'your channel name',
-                channelDescription: 'your channel description')),
+                'myDailyNotesChannel_id', 'myDailyNotesChannel',
+                channelDescription: 'myDailyNoesChannel')),
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
         UILocalNotificationDateInterpretation.absoluteTime,
         payload: payload);
   }
 
+  /// Configure TimeZone plugin
   Future<void> _configureLocalTimeZone() async {
     tz.initializeTimeZones();
     final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();

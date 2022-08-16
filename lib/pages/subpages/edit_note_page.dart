@@ -1,10 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:my_daily_notes/services/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
-import 'package:my_daily_notes/stored_data.dart';
+import 'package:my_daily_notes/services/stored_data.dart';
 
 class AddEditNotePage extends StatefulWidget {
   final Note? note;
@@ -24,10 +21,8 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   late String table;
   late TextEditingController titleController;
   late TextEditingController descriptionController;
-  final TextEditingController _dateController = TextEditingController();
   DateTime _datePicked = DateTime.now();
   TimeOfDay _timePicked = TimeOfDay.now();
-  final TextEditingController _timeController = TextEditingController();
 
   @override
   void initState() {
@@ -175,14 +170,6 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       pickedDate = DateTime(_datePicked.year, _datePicked.month, _datePicked.day, _timePicked.hour, _timePicked.minute).toUtc();
       return pickedDate;
     }
-  }
-
-  Future<Null> setTimeController(TimeOfDay time) async {
-    String hour;
-    String minutes;
-    hour = time.hour.toString().padLeft(2, '0');
-    minutes = time.minute.toString().padLeft(2, '0');
-    _timeController.text = '$hour:$minutes';
   }
 
   Future<Null> getTime(DateTime? dateTime) async {

@@ -3,7 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_daily_notes/pages/name_selection.dart';
 import 'package:my_daily_notes/pages/tab_layout.dart';
 import 'package:my_daily_notes/services/notifications_service.dart';
-import 'package:my_daily_notes/stored_data.dart';
+import 'package:my_daily_notes/services/stored_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
