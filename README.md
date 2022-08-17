@@ -1,3 +1,3 @@
-# my_daily_notes
+# My Daily Notes
 
-App to read daily notes
+App to send Notes and choose when they will be readable
