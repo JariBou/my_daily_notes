@@ -78,4 +78,11 @@ class Note {
     author: author,
   );
 
+  bool equals(Note note) {
+    if (title != note.title){return false;}
+    if (description != note.description){return false;}
+    if (author != note.author){return false;}
+    return true;
+  }
+
 }

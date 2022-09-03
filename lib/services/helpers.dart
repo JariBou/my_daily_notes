@@ -42,7 +42,9 @@ class AlertsManager {
       {
     String? title,
     String? content,
-    Function? onConfirmCallback,
+        String? yesText,
+        String? noText,
+    required Function onConfirmCallback,
     Function? onCancelCallback,
   }) {
     showDialog(
@@ -55,16 +57,16 @@ class AlertsManager {
               // The "Yes" button
               TextButton(
                   onPressed: () {
-                    onConfirmCallback!();
+                    onConfirmCallback();
                     Navigator.of(context, rootNavigator: true).pop();
                   },
-                  child: const Text('Yes')),
+                  child: Text(yesText ?? 'Yes')),
               TextButton(
                   onPressed: () {
-                    onCancelCallback!();
+                    onCancelCallback!() ?? () => {};
                     Navigator.of(context, rootNavigator: true).pop();
                   },
-                  child: const Text('No'))
+                  child: Text(noText ?? 'No'))
             ],
           );
         });

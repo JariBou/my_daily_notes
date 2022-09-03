@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:intl/intl.dart';
 import 'package:my_daily_notes/services/notes_database.dart';
 import 'package:my_daily_notes/models/note.dart';
 import 'package:my_daily_notes/pages/subpages/edit_note_page.dart';
@@ -103,26 +104,37 @@ class _NotesPageState extends State<NotesPage> {
             );
     } else if (table == NoteTables.receivedNotes) {
       return longPressFlag
-          ? FloatingActionButton(
-              backgroundColor: Colors.red,
-              child: const Icon(Icons.delete_forever),
-              onPressed: () => {
-                AlertsManager.confirm(context,
-                    title: 'Confirm?',
-                    content:
-                        'Are you sure you want to delete all of the selected notes?',
-                    onConfirmCallback: () async {
-                      for (var i = 1; i < notesList.length + 1; i++) {
-                        await NotesDatabase.instance
-                            .delete(notesList[i - 1].id as int, widget.table);
-                        refreshNotes(widget.table);
-                      }
-                      notesList = [];
-                      longPress();
+          ? Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.red,
+                    child: const Icon(Icons.delete_forever),
+                    onPressed: () => {
+                      AlertsManager.confirm(context,
+                          title: 'Confirm?',
+                          content:
+                              'Are you sure you want to delete all of the selected notes?',
+                          onConfirmCallback: () async {
+                            for (var i = 1; i < notesList.length + 1; i++) {
+                              await NotesDatabase.instance.delete(
+                                  notesList[i - 1].id as int, widget.table);
+                              refreshNotes(widget.table);
+                            }
+                            notesList = [];
+                            longPress();
+                          },
+                          onCancelCallback: () => {})
                     },
-                    onCancelCallback: () => {})
-              },
-            )
+                  )),
+              Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.red,
+                    child: const Icon(Icons.save),
+                    onPressed: () => saveNotes(),
+                  ))
+            ])
           : FloatingActionButton(
               backgroundColor: Colors.black,
               child: const Icon(Icons.download),
@@ -173,11 +185,12 @@ class _NotesPageState extends State<NotesPage> {
       if (DateTime.now().isBefore(note.time)) {
         DateTime noteTime = note.time.toLocal();
         NotificationService().zonedScheduleNotification(
-            payload:
-                json.encode({'note_id': note.id, 'note_table': table}),
+            payload: json.encode({'note_id': note.id, 'note_table': table}),
             title: 'Note Unlocked',
-            content: 'A note that ${note.author} sent you just unlocked, come check it out!',
-            time: tz.TZDateTime(tz.local, noteTime.year, noteTime.month, noteTime.day, noteTime.hour, noteTime.minute),
+            content:
+                'A note that ${note.author} sent you just unlocked, come check it out!',
+            time: tz.TZDateTime(tz.local, noteTime.year, noteTime.month,
+                noteTime.day, noteTime.hour, noteTime.minute),
             noteId: note.id ?? 69);
       }
     }
@@ -250,6 +263,38 @@ class _NotesPageState extends State<NotesPage> {
       [file.path],
       subject: 'New Notes!',
       text: '${DataStorage.getData('name')} just sent you new notes!',
+    );
+
+    notesList = [];
+    longPress();
+    refreshNotes(widget.table);
+  }
+
+  saveNotes() async {
+    /// Function to save Notes
+    await FilePicker.platform.clearTemporaryFiles();
+    Directory directory = await getTemporaryDirectory();
+    final String fileName =
+        '${DateFormat('y-m-d').format(DateTime.now())}_notesSave.json';
+    File file = File('${directory.path}/$fileName');
+    Map<String, dynamic> jsonData = {};
+
+    for (var i = 1; i < notesList.length + 1; i++) {
+      Note note = notesList[i - 1];
+      jsonData.addAll({i.toString(): note.toJson()});
+    }
+
+    String jsonString = jsonEncode(jsonData);
+
+    file.writeAsStringSync(jsonString);
+
+    // This is for iPad but throws an error when passed to shareFiles
+    //final box = context.findRenderObject() as RenderBox?;
+
+    await Share.shareFiles(
+      [file.path],
+      subject: 'Notes Save',
+      text: 'Notes saved: $fileName',
     );
 
     notesList = [];

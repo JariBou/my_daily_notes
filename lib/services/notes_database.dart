@@ -86,6 +86,16 @@ class NotesDatabase {
     return result.map((json) => Note.fromJson(json)).toList();
   }
 
+  Future<List<Map<String, Object?>>> readAllNotesAsJson(String table) async {
+    /// returns all notes from 'table'
+    final db = await instance.database;
+
+    const orderBy = '${NoteFields.time} ASC';
+    final result = await db.query(table.toString(), orderBy: orderBy);
+
+    return result.toList();
+  }
+
   Future<int> update(Note note, String table) async {
     /// Updates a note at 'table'
     final db = await instance.database;

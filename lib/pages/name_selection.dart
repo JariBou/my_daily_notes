@@ -57,7 +57,7 @@ class _ChangeNameState extends State<ChangeNameLayout> {
                     DataStorage.storeData('name', nameController.text);
                     await Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(
-                            builder: (context) => NotesTabLayout()),
+                            builder: (context) => const NotesTabLayout()),
                             (Route<dynamic> route) => false);
                   }
                 },
