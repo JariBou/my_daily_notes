@@ -20,36 +20,59 @@ class _SettingsPageState extends State<SettingsPageLayout> {
     super.initState();
   }
 
+  List settingsFields = ['1', '2'];
+  Map settings = {};
+
+  void initSettings() {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Daily Notes'),
-        backgroundColor: Colors.blue,
-        actions: [
-          ButtonBar(
-            children: [
-              ElevatedButton(
-                  onPressed: () async {
-                    await Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => NotesTabLayout()),
-                        (Route<dynamic> route) => false);
-                  },
-                  child: const Icon(Icons.done)),
-              ElevatedButton(
-                  onPressed: () async {
-                    await Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => NotesTabLayout()),
-                            (Route<dynamic> route) => false);
-                  },
-                  child: const Icon(Icons.cancel)),
-            ],
-          )
-        ],
-      ),
-      body: const Text('Settings Page'),
-    );
+        appBar: AppBar(
+          title: const Text('My Daily Notes'),
+          backgroundColor: Colors.blue,
+          actions: [
+            ButtonBar(
+              children: [
+                ElevatedButton(
+                    onPressed: () async {
+                      await saveSettings();
+                      await Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => NotesTabLayout()),
+                          (Route<dynamic> route) => false);
+                    },
+                    child: const Icon(Icons.done)),
+                ElevatedButton(
+                    onPressed: () async {
+                      await Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => NotesTabLayout()),
+                          (Route<dynamic> route) => false);
+                    },
+                    child: const Icon(Icons.cancel)),
+              ],
+            )
+          ],
+        ),
+        body: Column(
+          children: List.generate(
+            settingsFields.length,
+            (index) {
+              return Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(settingsFields[index], style: const TextStyle(fontSize: 20),),
+                      Text('-------', style: TextStyle(fontSize: 20))
+                    ],
+                  ));
+              return Text(settingsFields[index]);
+            },
+          ),
+        ));
   }
+
+  saveSettings() async {}
 }

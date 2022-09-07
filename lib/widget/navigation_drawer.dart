@@ -8,6 +8,7 @@ import 'package:my_daily_notes/models/note.dart';
 import 'package:my_daily_notes/pages/name_selection.dart';
 import 'package:my_daily_notes/pages/settings_page.dart';
 import 'package:my_daily_notes/pages/subpages/notes_page.dart';
+import 'package:my_daily_notes/pages/tab_layout.dart';
 import 'package:my_daily_notes/services/helpers.dart';
 import 'package:my_daily_notes/services/notes_database.dart';
 import 'package:my_daily_notes/services/stored_data.dart';
@@ -100,6 +101,7 @@ class NavDrawer extends StatelessWidget {
       print(jsonData[table]);
     }
 
+
     /*var notesList = await NotesDatabase.instance
         .readAllNotesAsJson(NoteTables.receivedNotes);
 
@@ -115,22 +117,31 @@ class NavDrawer extends StatelessWidget {
 
     // This is for iPad but throws an error when passed to shareFiles
     //final box = context.findRenderObject() as RenderBox?;
-    restoreBackup(file);
-    /*await Share.shareFiles(
+
+    //restoreBackup(file);   for emulator
+
+    await Share.shareFiles(
         [file.path],
         subject: 'App Backup',
         text: 'App Backup: $fileName',
-      );*/
+      );
   }
 
-  restoreBackup(File file) async {
-    //FilePickerResult? result = await FilePicker.platform.pickFiles();
+  restoreBackup({File? f}) async {
+    File file;
 
-    /*if (result == null) {
-      return;
-    }*/
+    if (f == null) {
+      FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-    //File tablesData = File(result.files.single.path as String);
+      if (result == null) {
+        return;
+      }
+      file = File(result.files.single.path as String);
+
+    } else {
+      file = f;
+    }
+
 
     Map<String, dynamic> data = await json.decode(await file.readAsString());
 
