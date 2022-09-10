@@ -11,6 +11,7 @@ import 'package:my_daily_notes/pages/subpages/notes_page.dart';
 import 'package:my_daily_notes/pages/tab_layout.dart';
 import 'package:my_daily_notes/services/helpers.dart';
 import 'package:my_daily_notes/services/notes_database.dart';
+import 'package:my_daily_notes/services/settings_service.dart';
 import 'package:my_daily_notes/services/stored_data.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -43,6 +44,7 @@ class NavDrawer extends StatelessWidget {
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
             onTap: () async {
+              await SettingsManager.initSettings();
               await Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => SettingsPageLayout()),
                   (Route<dynamic> route) => false);

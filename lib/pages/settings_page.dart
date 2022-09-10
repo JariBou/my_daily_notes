@@ -20,10 +20,7 @@ class _SettingsPageState extends State<SettingsPageLayout> {
     super.initState();
   }
 
-  List settingsFields = ['1', '2'];
-  Map settings = {};
 
-  void initSettings() {}
 
   @override
   Widget build(BuildContext context) {
