@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_daily_notes/pages/tab_layout.dart';
+import 'package:my_daily_notes/services/settings_service.dart';
 import 'package:my_daily_notes/services/stored_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -54,18 +55,18 @@ class _SettingsPageState extends State<SettingsPageLayout> {
         ),
         body: Column(
           children: List.generate(
-            settingsFields.length,
+            SettingsManager.settingsFields.length,
             (index) {
               return Padding(
                   padding: const EdgeInsets.all(8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(settingsFields[index], style: const TextStyle(fontSize: 20),),
-                      Text('-------', style: TextStyle(fontSize: 20))
+                      Text(SettingsManager.settingsFields[index], style: const TextStyle(fontSize: 20),),
+                      const Text('-------', style: TextStyle(fontSize: 20))
                     ],
                   ));
-              return Text(settingsFields[index]);
+              return Text(SettingsManager.settingsFields[index]);
             },
           ),
         ));

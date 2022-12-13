@@ -103,15 +103,16 @@ class NavDrawer extends StatelessWidget {
       print(jsonData[table]);
     }
 
+    // This for tests --------------------------------
+    for (String table in NoteTables.fields) {
+      List notes = jsonData[table]!;
+      for (Map<String, Object?> noteJson in notes) {
+        Note note = Note.fromJson(noteJson).removeId();
+        NotesDatabase.instance.create(note, table);
+      }
+    }
+    // -----------------------------------------------
 
-    /*var notesList = await NotesDatabase.instance
-        .readAllNotesAsJson(NoteTables.receivedNotes);
-
-    for (var i = 1; i < notesList.length + 1; i++) {
-      var note = notesList[i - 1];
-      print(note);
-      //jsonData.addAll({i.toString(): note.toJson()});
-    }*/
 
     String jsonString = jsonEncode(jsonData);
 
