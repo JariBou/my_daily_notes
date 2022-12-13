@@ -49,6 +49,7 @@ class MyApp extends StatelessWidget {
         title: 'My Daily Notes',
         color: Colors.blue,
         home: NotesTabLayout(notification: notification),
+        debugShowCheckedModeBanner: false, // Removes the debug banner
       );
     }
 
