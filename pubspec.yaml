@@ -39,7 +39,7 @@ dependencies:
   shared_preferences:
   file_picker:
   share_plus:
-  flutter_local_notifications:
+  flutter_local_notifications: 9.9.1
   flutter_native_timezone:
   timezone:
 
